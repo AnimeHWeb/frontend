@@ -182,3 +182,4 @@ Thumbs.db
 #env
 .env
 /src/environments
+.scannerwork/
