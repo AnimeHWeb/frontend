@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AnimeH - Frontend
 
 <!-- PROJECT SHIELDS (nếu cần) -->
@@ -277,3 +278,6 @@ Phiên bản hiện tại đã hoàn thành các chức năng chính nêu trên.
 ---
 
 > **Ghi chú**: Tài liệu này mô tả **trạng thái hiện tại** của Frontend AnimeH. Một số phần đang tiếp tục được phát triển (comment, rating, payment, …). Vui lòng xem chi tiết code hoặc liên hệ tác giả để biết thêm.
+=======
+# frontend
+>>>>>>> 1a0123adde63958d8f0f7c36007e4c212b606de3
