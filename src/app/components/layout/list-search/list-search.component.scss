@@ -1,0 +1,83 @@
+.card-list {
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: absolute;
+  top: 60px;
+  right: 150px;
+  gap: 16px;
+  padding: 16px;
+  background-color: #323232;
+  flex-direction: column;
+  border-radius: 8px;
+  border: 1px white solid;
+  max-height: 0px;
+  opacity: 0;
+  visibility: hidden;
+  box-shadow: 5px 5px 10px rgba(255, 255, 255, 0.3);
+  .container-search-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 16px;
+  }
+
+  &.visible {
+    padding: 16px;
+    gap: 16px;
+    max-width: 400px;
+    max-height: 600px;
+    opacity: 1;
+    visibility: visible;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 400px;
+    height: 100px;
+    white-space: nowrap;
+  }
+
+  .no-item-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 400px;
+    height: 100px;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 768px) {
+  .card-list {
+    right: 20px;
+    &.visible {
+      max-width: 300px;
+    }
+  }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0px 10px 10px 0px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 0px 10px 10px 0px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

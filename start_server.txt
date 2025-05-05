@@ -1,0 +1,10 @@
+json-server --watch db.json --port 3000
+ng serve --host=0.0.0.0 --disable-host-check
+
+
+--test--
+& "C:\Users\toqua\AppData\Roaming\npm\sonar-scanner" `
+  -D"sonar.projectKey=animeh-fe-2" `
+  -D"sonar.sources=." `
+  -D"sonar.host.url=http://localhost:9000" `
+  -D"sonar.token=sqp_e9ca493fff4ea514a92d4ece1ebe3ace89312053"

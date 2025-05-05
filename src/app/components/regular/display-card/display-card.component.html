@@ -1,0 +1,28 @@
+<div
+  class="card"
+  [ngStyle]="{ 'max-width': maxWidth }"
+  (click)="handleClick(animeId)"
+  [class.primary]="variant === 'primary'"
+  [class.secondary]="variant === 'secondary'"
+  [class.third]="variant === 'third'"
+>
+  <div class="image-container">
+    <img
+      [src]="imageUrl"
+      [alt]="title"
+      loading="lazy"
+      (error)="handleImageError($event)"
+    />
+  </div>
+
+  <div class="content">
+    <h2 class="title" [title]="title">{{ title }}</h2>
+
+    <div class="fields-container">
+      <div class="field" *ngFor="let field of fields">
+        <span class="label">{{ field.label }}:</span>
+        <span class="value" [title]="field.value">{{ field.value }}</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,116 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #474851;
+  height: 60px;
+  border-bottom: 1px black solid;
+  .first-part {
+    display: flex;
+    align-items: center;
+    color: aliceblue;
+    .logo-web {
+      padding: 0 12px 0 45px;
+      .image-class {
+        cursor: pointer;
+        height: 60px;
+      }
+    }
+    .filter-list-container {
+      display: flex;
+      margin-left: 50px;
+    }
+  }
+
+  .second-part {
+    display: flex;
+    margin-right: 16px;
+    gap: 10px;
+    align-items: center;
+    color: aliceblue;
+    .search-box {
+      margin-right: 20px;
+      width: 432px;
+    }
+    .avatar-control {
+      display: flex;
+      flex-direction: column;
+      .avatar-img {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        background-color: #323232;
+        cursor: pointer;
+        .avatar {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 2px solid white;
+          object-fit: cover;
+        }
+        &:hover {
+          scale: 1.05;
+        }
+      }
+      .options {
+        display: flex;
+        background-color: #5d5757;
+        border: 1px white solid;
+        border-radius: 8px;
+        position: absolute;
+        transition: all 0.3s ease;
+        max-width: 0px;
+        max-height: 0px;
+        top: 65px;
+        right: 20px;
+        overflow: hidden;
+        opacity: 0;
+        &.opened {
+          max-width: 400px;
+          max-height: 600px;
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+/* ✅ RESPONSIVE */
+@media (max-width: 1024px) {
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .second-part {
+    display: flex;
+    justify-content: end;
+    width: 100%;
+    gap: 16px;
+
+    .search-box {
+      width: 100%;
+      max-width: 150px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .logo-web {
+    padding: 0 12px !important;
+  }
+
+  .filter-list-container {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    margin: 0 !important;
+  }
+
+  .second-part {
+    .search-box {
+      max-width: 140px;
+      margin-right: 0px !important;
+    }
+  }
+}

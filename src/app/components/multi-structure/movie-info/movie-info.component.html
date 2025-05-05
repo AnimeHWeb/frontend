@@ -1,0 +1,181 @@
+<div class="main-detail-container">
+  <!-- Phần 1: Header -->
+  <div class="movie-header">
+    <img
+      [src]="background ? imgBackground : imgDefault"
+      alt="Background"
+      class="background-img"
+    />
+    <div class="movie-thumbnail">
+      <div class="overlay-click-play" (click)="handleClickPlayThumbnail()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="42"
+          height="42"
+          color="white"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-circle-play"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="10 8 16 12 10 16 10 8" />
+        </svg>
+      </div>
+      <img [src]="thumbnail ? imgThumbnail : imgDefault" alt="Thumbnail" />
+    </div>
+    <div class="movie-info">
+      <h2 class="movie-title">{{ title }}</h2>
+      <div class="description-movie">
+        <p class="movie-description">{{ description }}</p>
+      </div>
+      <div class="control-movie">
+        <app-dropdown-button
+          [label]="selectedSeason.label"
+          [options]="seasons"
+          [variant]="'secondary'"
+          [size]="'large'"
+          [customDropField]="'second-type'"
+          [disabled]="false"
+          [multiSelect]="false"
+          [isDisplayCheckbox]="false"
+          (onSelect)="handleSelect($event)"
+          [isDisplaySelectedOpptionLabels]="false"
+          [isButtonControl]="false"
+        >
+        </app-dropdown-button>
+        <div class="follow-and-view">
+          <div class="total-views">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-eye"
+            >
+              <path
+                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"
+              />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            {{ totalViews | number }} lượt xem
+          </div>
+          <app-interactive-button
+            [buttonText]="follow ? 'Unfollow' : 'Follow'"
+            [buttonType]="'primary'"
+            [buttonSize]="'small'"
+            [isDisabled]="false"
+            [tooltipText]="'Nhấn để xác nhận'"
+            (buttonClick)="onClick()"
+            ><svg
+              *ngIf="follow"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-bookmark-minus"
+            >
+              <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+              <line x1="15" x2="9" y1="10" y2="10" />
+            </svg>
+            <svg
+              *ngIf="!follow"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-bookmark-plus"
+            >
+              <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+              <line x1="12" x2="12" y1="7" y2="13" />
+              <line x1="15" x2="9" y1="10" y2="10" />
+            </svg>
+          </app-interactive-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phần 2: Thông tin chi tiết -->
+  <div class="movie-details">
+    <div class="episode-rating">
+      <div class="latest-episodes">
+        <label>Tập mới nhất:</label>
+        <button
+          *ngFor="let ep of latestEpisodes"
+          class="episode-btn"
+          (click)="onClickEpisode(ep.id)"
+          [ngClass]="{
+            'ep-pending': ep.status === 'pending',
+            'ep-rejected': ep.status === 'rejected'
+          }"
+        >
+          {{ ep.episodeNumber }}
+        </button>
+      </div>
+
+      <div class="movie-rating">
+        <label
+          >Đánh giá:
+          <div class="rating-number">
+            {{ rating }}/10 ({{ numberOfRating }} Đánh giá)
+          </div></label
+        >
+        <div class="rating-container">
+          <div class="stars-icon">
+            <span
+              *ngFor="let star of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+              (click)="setRating(star)"
+              (mouseenter)="onHover(star)"
+              (mouseleave)="onLeave()"
+            >
+              <i
+                class="star"
+                [class.filled]="star <= selectedRating || star <= hoveredRating"
+                >★</i
+              >
+            </span>
+          </div>
+          <div class="rating-text" *ngIf="hoveredRating">{{ ratingLabel }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="movie-meta">
+      <div class="column">
+        <p><strong>Thể loại:</strong> {{ genres.join(", ") }}</p>
+        <p><strong>Lượt theo dõi:</strong> {{ followers | number }}</p>
+        <p><strong>Trạng thái:</strong> {{ status }}</p>
+        <p *ngIf="role === 'ROLE_ADMIN' || role === 'ROLE_MODERATOR'">
+          <strong>Người đăng tải:</strong> {{ submittedByUsername }}
+        </p>
+      </div>
+      <div class="column">
+        <p><strong>Quốc gia:</strong> {{ country }}</p>
+        <p><strong>Studio:</strong> {{ studio }}</p>
+        <p>
+          <strong>Lịch chiếu:</strong>
+          {{ schedule ? schedule : "Chưa có" }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

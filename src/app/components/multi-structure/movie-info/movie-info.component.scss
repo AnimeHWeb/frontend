@@ -1,0 +1,283 @@
+.main-detail-container {
+  min-height: 85vh;
+  .movie-header {
+    position: relative;
+    width: 100%;
+    height: 50vh; // Đảm bảo chiều cao ổn định theo viewport
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5%;
+    overflow: visible; // Cho phép dropdown tràn ra ngoài
+
+    .background-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; // Đảm bảo ảnh phủ kín khu vực mà không bị méo
+      z-index: 1; // Đặt ảnh nền phía sau mọi thành phần khác
+    }
+
+    // Lớp phủ đảm bảo hiệu ứng blur đúng với background
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px); // Hiệu ứng làm mờ nền
+      z-index: 2;
+    }
+
+    .movie-thumbnail {
+      flex: 0 0 10%;
+      z-index: 2;
+      position: relative; // Đảm bảo không bị ảnh hưởng bởi lớp phủ
+      .overlay-click-play {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        position: absolute;
+        height: clamp(200px, 40vh, 400px);
+        width: clamp(150px, calc(150px + 1vw), 200px);
+        cursor: pointer;
+        border-radius: 10px;
+        background-color: rgba(0, 0, 0, 0.5);
+        &:hover {
+          opacity: 0.5;
+        }
+      }
+
+      img {
+        width: 100%;
+        min-height: clamp(200px, 40vh, 400px);
+        min-width: clamp(150px, calc(150px + 1vw), 200px);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        object-fit: cover;
+        aspect-ratio: 9 / 14;
+      }
+    }
+
+    .movie-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: white;
+      z-index: 2;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+      padding: 0 100px 0 20px;
+      height: 80%;
+
+      .movie-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0px;
+      }
+
+      .description-movie {
+        max-height: 230px;
+        overflow: auto;
+        .movie-description {
+          font-size: 1rem;
+          line-height: 1.5;
+          opacity: 0.9;
+        }
+      }
+
+      .control-movie {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-top: 1rem;
+        justify-content: space-between;
+
+        app-dropdown-button {
+          min-width: 150px;
+          position: relative; // Giữ dropdown hiển thị bên ngoài
+        }
+
+        .follow-and-view {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          .total-views {
+            gap: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+  .movie-details {
+    margin: 10px;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    width: 100%;
+    box-sizing: border-box;
+
+    .episode-rating {
+      display: flex;
+      justify-content: space-between;
+      .latest-episodes {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        flex: 1;
+
+        label {
+          font-weight: bold;
+          margin-right: 10px;
+        }
+
+        .episode-btn {
+          width: 25px;
+          height: 25px;
+          border-radius: 5px;
+          border: none;
+          background: #454e52;
+          color: white;
+          font-size: 12px;
+          margin-right: 5px;
+          cursor: pointer;
+          transition: 0.3s;
+
+          &.ep-rejected {
+            background-color: #e25d5d;
+            color: #fbff00;
+          }
+
+          &.ep-pending {
+            background-color: #0073df;
+            color: white;
+          }
+
+          &:hover {
+            background: #007bbf;
+          }
+        }
+      }
+
+      .movie-rating {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        flex: 1;
+        white-space: nowrap;
+
+        label {
+          display: flex;
+          font-weight: bold;
+          margin-right: 10px;
+          .rating-number {
+            margin-left: 10px;
+          }
+        }
+
+        .rating-container {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          .stars-icon {
+            display: flex;
+            font-size: 20px;
+            color: #bbb;
+            cursor: pointer;
+
+            span {
+              display: inline-block; // Giữ nguyên bố cục khi scale
+              transition: transform 0.3s ease, color 0.3s ease;
+
+              .star {
+                transition: transform 0.3s ease, color 0.3s ease; // Hiệu ứng mượt
+                display: inline-block;
+
+                &.filled {
+                  color: #ebbc01;
+                }
+
+                &:hover {
+                  color: #ffd37a;
+                  scale: 1.5;
+                  transform: translateY(-3px);
+                }
+              }
+            }
+          }
+
+          .rating-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 5px;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+
+    .movie-meta {
+      display: flex;
+      width: 100%;
+      .column {
+        flex: 1;
+        p {
+          margin: 10px 0;
+        }
+      }
+    }
+  }
+}
+
+// Responsive điều chỉnh layout trên màn hình nhỏ hơn
+@media (max-width: 768px) {
+  .movie-header {
+    flex-direction: column;
+    height: auto !important;
+    padding: 20px !important;
+
+    .movie-thumbnail {
+      max-width: 150px;
+      margin-bottom: 10px;
+    }
+
+    .movie-info {
+      padding-right: 30px !important;
+      text-align: center;
+      padding: 0;
+    }
+
+    .control-movie {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      .follow-and-view {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+
+  .movie-details {
+    display: flex;
+    flex-direction: column;
+    .episode-rating {
+      display: flex;
+      flex-direction: column;
+    }
+    .movie-meta {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}

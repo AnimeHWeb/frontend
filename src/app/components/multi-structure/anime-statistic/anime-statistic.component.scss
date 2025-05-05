@@ -1,0 +1,50 @@
+.statistic-container {
+  background-color: #323232;
+  color: #d6d6d6;
+  padding: 16px;
+  border-radius: 8px;
+  min-height: calc(100vh - 95px);
+
+  h2 {
+    text-align: start;
+    margin-bottom: 16px;
+    margin-block-start: 0;
+  }
+
+  .info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+
+    p {
+      margin: 0;
+      flex: 1 1 calc(50% - 8px);
+
+      @media (max-width: 600px) {
+        flex: 1 1 100%;
+      }
+    }
+
+    .export-buttons {
+      display: flex;
+      flex: 1 1 100%;
+      gap: 8px;
+      margin: 8px 0;
+
+      button {
+        background: #5d5757;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    }
+  }
+
+  ngx-charts-advanced-pie-chart {
+    display: block;
+    margin: 0 auto;
+  }
+}

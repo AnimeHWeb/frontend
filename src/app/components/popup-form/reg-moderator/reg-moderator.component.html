@@ -1,0 +1,132 @@
+<div
+  class="popup-overlay-register-mor"
+  (click)="closePopupOnOutside($event)"
+  [class.opened]="(openedForms$ | async)?.['reg-moderator']"
+>
+  <div
+    class="popup-register-mor"
+    [class.opened]="(openedForms$ | async)?.['reg-moderator']"
+    #popupContainer
+  >
+    <div class="top-form-register-mor">
+      <h2>Đăng ký Moderator</h2>
+      <img src="assets/logo.png" alt="" class="logo-register-mor" />
+    </div>
+
+    <div class="input-area">
+      <div *ngIf="!token" class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Tên tài khoản"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập tên tài khoản"
+          [value]="data.username"
+          (valueChange)="handleOnChangeUserName($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div *ngIf="!token" class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Email"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập Email của bạn..."
+          [value]="data.email"
+          (valueChange)="handleOnChangeEmail($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Tên đầy đủ"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập tên đầy đủ..."
+          [value]="!!token ? dataUser.fullName : data.fullName"
+          (valueChange)="handleOnChangeFullName($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Số điện thoại"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập số điện thoại..."
+          [value]="!!token ? dataUser.phoneNumber : data.phoneNumber"
+          (valueChange)="handleOnChangePhoneNumber($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Căn cước công dân"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập căn cước công dân..."
+          [value]="!!token ? dataUser.cccd : data.cccd"
+          (valueChange)="handleOnChangeCccd($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+      <div *ngIf="!token" class="form-group">
+        <app-dynamic-input
+          type="password"
+          label="Mật khẩu"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập mật khẩu..."
+          [value]="data.password"
+          (valueChange)="handleOnChangePassWord($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+      <div *ngIf="!token" class="form-group">
+        <app-dynamic-input
+          type="password"
+          label="Xác nhận mật khẩu"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập lại mật khẩu..."
+          [value]="passwordAgain"
+          (valueChange)="handleOnChangePasswordAgain($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+    </div>
+
+    <div class="bottom-btn">
+      <app-interactive-button
+        buttonText="Huỷ"
+        (buttonClick)="closePopup()"
+      ></app-interactive-button>
+      <app-interactive-button
+        buttonText="Đăng ký"
+        [isLoading]="loading"
+        (buttonClick)="onFormSubmit()"
+      ></app-interactive-button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+<div class="filter-advanced-container">
+  <div class="filter-input">
+    <h2>Lọc phim nâng cao</h2>
+
+    <!-- row-filters hiển thị mảng group dưới dạng dropdown -->
+    <div class="row-filters">
+      <div
+        class="group"
+        *ngFor="let group of tagGroups"
+        [ngClass]="group.isOpen ? ' open' : ''"
+      >
+        <!-- Label dropdown: click để mở/đóng -->
+        <p (click)="group.isOpen = !group.isOpen">{{ group.label }}</p>
+        <!-- Danh sách tag sẽ hiển thị khi dropdown mở -->
+        <div class="tag-container" [class.open]="group.isOpen">
+          <button
+            *ngFor="let tag of group.data"
+            (click)="toggleTag(group, tag.name); $event.stopPropagation()"
+            [class.selected]="group.selected.includes(tag.name)"
+          >
+            {{ tag.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-control">
+      <!-- Nút Xác nhận lọc -->
+      <button class="btn-filter" (click)="onFilter()">Xác nhận lọc</button>
+      <button class="btn-filter clear" (click)="onClear()">Xoá hết</button>
+    </div>
+
+    <div class="result-container">
+      <!-- Hiển thị loading -->
+      <div *ngIf="loading">Đang tải...</div>
+
+      <!-- Hiển thị kết quả -->
+      <div class="list-content" *ngIf="!loading && filteredAnimes.length > 0">
+        <h3>Kết quả filter ({{ totalData }} phim):</h3>
+        <ul class="result-list">
+          <li *ngFor="let anime of filteredAnimes">
+            <div class="result-card" (click)="goToFilmDetails(anime.id)">
+              <!-- Poster bên trái -->
+              <img
+                class="poster"
+                [src]="buildImgThumbnailUrl(anime.posterUrl, 'small')"
+                alt="poster"
+              />
+              <!-- Thông tin phim bên phải -->
+              <div class="info">
+                <h3 class="title">{{ anime.title }}</h3>
+                <p class="episodes">{{ anime.expectedEpisodes }} tập</p>
+                <div class="info-details">
+                  <p class="rating">{{ anime.averageRating }} rating</p>
+                  <p class="views">
+                    {{ anime.viewCount ? anime.viewCount : (0 | number) }} View
+                  </p>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div *ngIf="!loading && filteredAnimes.length === 0">
+        Không có phim phù hợp.
+      </div>
+    </div>
+    <app-pagination
+      [totalData]="totalData"
+      [amountDataPerPage]="itemsPerPage"
+      [currentPageIndex]="currentPageIndex"
+      (onPageChange)="onPageChange($event)"
+    >
+    </app-pagination>
+  </div>
+</div>

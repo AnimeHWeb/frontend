@@ -1,0 +1,23 @@
+<div class="movie-card" [title]="video.title" (click)="goToFilmDetails()">
+  <div class="thumbnail-container">
+    <div class="thumbnail-img-container">
+      <img
+        [src]="video.thumbnail ? thumbnail : thumbnailUrlDefault"
+        alt="{{ video.title }}"
+      />
+    </div>
+
+    <!-- Ep / Total Ep -->
+    <span class="ep-display"
+      >{{ video.ep ? video.ep : "?" }}/{{ video.total_ep }}</span
+    >
+
+    <!-- Rating -->
+    <span class="rating-display">{{ video.rating }}⭐</span>
+  </div>
+
+  <h3 class="title-card-movie">
+    {{ truncateTitle(video.title) }}
+  </h3>
+  <p class="view-display">Lượt xem: {{ video.view | formatView }}</p>
+</div>

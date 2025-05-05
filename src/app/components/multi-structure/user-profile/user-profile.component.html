@@ -1,0 +1,96 @@
+<div class="profile-container">
+  <!-- Phần 1: Thông tin cá nhân -->
+  <div class="profile-left">
+    <div class="profile-header">
+      <!-- Nếu có ảnh nền -->
+      <img
+        *ngIf="userInfo.backgroundUrl"
+        [src]="backgroundUrl ? backgroundUrl : 'assets/placeholder-banner.png'"
+        alt="Background"
+        class="background-img"
+      />
+
+      <!-- Nếu không có ảnh nền (backgroundUrl là chuỗi rỗng) -->
+      <div *ngIf="!userInfo.backgroundUrl" class="background-img">Chưa đặt</div>
+
+      <!-- Nút upload ảnh nền -->
+      <label
+        class="upload-btn"
+        *ngIf="this.accountId === null && !this.infoUserAccount"
+      >
+        📷
+        <input
+          type="file"
+          (change)="uploadBackground($event)"
+          accept="image/*"
+        />
+      </label>
+    </div>
+    <div class="profile-info">
+      <div class="avatar-container">
+        <img
+          *ngIf="userInfo.avatarUrl"
+          [src]="userAvatarUrl"
+          alt="Avatar"
+          class="avatar"
+        />
+        <div *ngIf="!userInfo.avatarUrl" class="avatar">Chưa đặt</div>
+        <!-- Nút upload ảnh nền -->
+        <label
+          class="upload-avatar-btn"
+          *ngIf="this.accountId === null && !this.infoUserAccount"
+        >
+          📷
+          <input type="file" (change)="uploadAvatar($event)" accept="image/*" />
+        </label>
+      </div>
+      <div class="text-info">
+        <h2 class="profile-name">{{ userInfo.displayName }}</h2>
+        <p class="profile-bio">{{ userInfo.bio }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phần 2: Chi tiết thông tin -->
+  <div class="profile-right">
+    <section class="profile-section">
+      <h3>Giới thiệu</h3>
+      <p><strong>Họ và Tên:</strong> {{ userInfo.fullName }}</p>
+      <p><strong>SĐT:</strong> {{ userInfo.phoneNumber }}</p>
+      <p><strong>Email:</strong> {{ userInfo.email }}</p>
+      <p><strong>Vai trò:</strong> {{ userInfo.role }}</p>
+      <p>
+        <strong>Giới tính:</strong>
+        {{
+          userInfo.gender == null ? "Chưa đặt" : userInfo.gender ? "Nam" : "Nữ"
+        }}
+      </p>
+    </section>
+
+    <section class="profile-section">
+      <h3>Dịch vụ tài khoản</h3>
+      <p>
+        <strong>Số dư:</strong>
+        {{ userInfo.gpValue || 0 | number : "1.0-0" }} GP
+      </p>
+
+      <p>
+        <strong>Dịch vụ sử dụng:</strong>
+        <!-- {{ userInfo.services.join(", ") }} -->
+      </p>
+    </section>
+
+    <section class="profile-section">
+      <h3>Thể loại yêu thích</h3>
+      <!-- <p>{{ userInfo.favoriteGenres.join(", ") }}</p> -->
+    </section>
+  </div>
+</div>
+
+<app-edit-info-account
+  class="modal-update-info-account"
+  [infoAccount]="userInfo"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['modal-update-info-account']"
+>
+</app-edit-info-account>

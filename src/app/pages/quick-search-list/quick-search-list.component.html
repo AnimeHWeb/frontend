@@ -1,0 +1,31 @@
+<div class="category-detail-container">
+  <div class="list-thumbnails">
+    <h2 class="category-title">Lọc nhanh: {{ nameTag }}</h2>
+
+    <div class="video-grid">
+      <app-movie-card
+        *ngFor="let video of videos"
+        [video]="video"
+        [isList]="false"
+      >
+      </app-movie-card>
+    </div>
+
+    <div class="not-found" *ngIf="videos.length === 0 && !loading">
+      Không tìm thấy phim phù hợp
+    </div>
+  </div>
+
+  <app-pagination
+    [totalData]="totalData"
+    [amountDataPerPage]="itemsPerPage"
+    [currentPageIndex]="currentPageIndex"
+    (onPageChange)="onPageChange($event)"
+  >
+  </app-pagination>
+</div>
+
+<app-loading-overlay
+  [visible]="loading"
+  message="Đang tải dữ liệu..."
+></app-loading-overlay>

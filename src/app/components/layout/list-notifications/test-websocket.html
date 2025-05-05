@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WebSocket (No SockJS)</title>
+  </head>
+  <body>
+    <h1>Demo WebSocket STOMP - Không dùng SockJS</h1>
+    <button onclick="connectWs()">Connect WS</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script>
+      let stompClient = null;
+
+      function connectWs() {
+        // Connect raw WebSocket
+        const socket = new WebSocket("ws://192.168.1.220:8081/animeh/api/ws");
+        stompClient = Stomp.over(socket);
+
+        // Tắt debug console STOMP nếu muốn
+        // stompClient.debug = null;
+
+        stompClient.connect(
+          {},
+          (frame) => {
+            console.log("Connected:", frame);
+
+            // Subscribe topic ANIME
+            stompClient.subscribe("/topic/anime", (msg) => {
+              const body = JSON.parse(msg.body);
+              console.log("anime ->", body);
+              alert("ANIME: " + body.title + " : " + body.message);
+            });
+
+            // Subscribe topic EPISODE
+            stompClient.subscribe("/topic/episode", (msg) => {
+              const body = JSON.parse(msg.body);
+              console.log("episode ->", body);
+              alert("EPISODE: " + body.title + " : " + body.message);
+            });
+
+            // Subscribe topic COMMENT
+            stompClient.subscribe("/topic/comment", (msg) => {
+              const body = JSON.parse(msg.body);
+              console.log("comment ->", body);
+              alert("COMMENT: " + body.title + " : " + body.message);
+            });
+          },
+          (err) => {
+            console.error("WS connect error:", err);
+            alert("WebSocket failed, check console.");
+          }
+        );
+      }
+    </script>
+  </body>
+</html>

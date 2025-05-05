@@ -1,0 +1,115 @@
+<div class="episode-approval-container">
+  <div
+    class="admin-approval"
+    *ngIf="role === 'ROLE_ADMIN' && episodeStatus === 'pending'"
+  >
+    <!-- Phần 1: Nhập lý do reject tập (cũ) -->
+    <div class="section-1">
+      <label for="reason" class="label"
+        >Nhập lý do không đạt điều kiện phát hành*</label
+      >
+      <textarea
+        id="reason"
+        [(ngModel)]="reason"
+        rows="4"
+        placeholder="Nhập lý do ở đây..."
+      ></textarea>
+    </div>
+
+    <!-- Phần 2: Xác nhận duyệt tập -->
+    <div class="section-2">
+      <label class="label"
+        >Có xác nhận duyệt tập {{ episodeName }} hay không?</label
+      >
+      <div class="button-group">
+        <button
+          class="btn not-approved"
+          (click)="onNotApproved()"
+          [disabled]="rejectLoading"
+        >
+          <ng-container *ngIf="rejectLoading; else notApprovedText">
+            <span class="spinner"></span> Đang tải...
+          </ng-container>
+          <ng-template #notApprovedText>Không đạt</ng-template>
+        </button>
+        <button
+          class="btn approved"
+          (click)="onConfirmApproval()"
+          [disabled]="approveLoading"
+        >
+          <ng-container *ngIf="approveLoading; else approvedText">
+            <span class="spinner"></span> Đang tải...
+          </ng-container>
+          <ng-template #approvedText>Xác nhận duyệt</ng-template>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Khu vực hiển thị status + lý do reject (readonly) -->
+  <div class="display-status-approval">
+    <div class="section-1">
+      <label for="reason" class="label"
+        >Trạng thái kiểm duyệt: {{ episodeStatus }}</label
+      >
+      <!-- textarea chỉ đọc -->
+      <textarea
+        id="reason"
+        [(ngModel)]="reasonReject"
+        rows="4"
+        [readonly]="true"
+      ></textarea>
+    </div>
+
+    <div class="section-2">
+      <div class="button-group">
+        <button
+          class="btn not-approved"
+          (click)="onDeleteEpisode()"
+          [disabled]="rejectLoading"
+        >
+          Xoá tập này
+        </button>
+        <button
+          class="btn approved"
+          (click)="toggleEditForm()"
+          [disabled]="approveLoading"
+        >
+          Chỉnh sửa lại
+        </button>
+      </div>
+    </div>
+
+    <!-- Form chỉnh sửa Tập, ẩn/hiện theo isEditing -->
+    <div class="edit-form" *ngIf="isEditing">
+      <h3>Chỉnh sửa thông tin tập</h3>
+      <label class="label">Tiêu đề tập (title)</label>
+      <input
+        type="text"
+        [(ngModel)]="episodeTitle"
+        placeholder="Nhập tiêu đề tập"
+      />
+
+      <label class="label">Mô tả tập (description)</label>
+      <textarea
+        rows="4"
+        [(ngModel)]="episodeDescription"
+        placeholder="Nhập mô tả tập"
+      ></textarea>
+
+      <!-- Input file mới để tải lên video (tùy chọn) -->
+      <label class="label">Tải lên video (tùy chọn)</label>
+      <input type="file" (change)="onFileSelected($event)" accept="video/*" />
+
+      <div class="button-group" style="margin-top: 10px">
+        <button class="btn not-approved" (click)="cancelEdit()">Huỷ</button>
+        <button class="btn approved" (click)="onUpdateEpisode()">
+          <ng-container *ngIf="updating; else notUpdate">
+            <span class="spinner"></span> Xin chờ...
+          </ng-container>
+          <ng-template #notUpdate>Xác nhận</ng-template>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

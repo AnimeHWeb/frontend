@@ -1,0 +1,10 @@
+<div *ngIf="(isAuthenticated$ | async) !== null" class="option-avatar-list">
+  <button
+    *ngFor="let option of options; trackBy: trackById"
+    class="option-item"
+    (click)="selectOption(option)"
+  >
+    <span class="icon" [innerHTML]="sanitizeIcon(option.icon)"></span>
+    <span class="label">{{ option.label }}</span>
+  </button>
+</div>

@@ -1,0 +1,57 @@
+<div class="category-detail-container">
+  <div class="list-thumbnails">
+    <h2 class="category-title">Phim chờ duyệt</h2>
+
+    <div class="video-grid">
+      <app-movie-card
+        *ngFor="let video of videos"
+        [video]="video"
+        [isList]="false"
+      >
+      </app-movie-card>
+    </div>
+
+    <div class="not-found" *ngIf="videos.length === 0 && !isLoading">
+      Không có phim cần duyệt
+    </div>
+  </div>
+
+  <app-pagination
+    [totalData]="totalData"
+    [amountDataPerPage]="itemsPerPage"
+    [currentPageIndex]="currentPageIndex"
+    (onPageChange)="onPageChangeAnime($event)"
+  >
+  </app-pagination>
+</div>
+
+<div class="category-detail-container">
+  <div class="list-thumbnails">
+    <h2 class="category-title">Tập phim chờ duyệt</h2>
+
+    <div class="video-grid">
+      <app-movie-card
+        *ngFor="let episode of episodes"
+        [video]="episode"
+        [isList]="false"
+      >
+      </app-movie-card>
+    </div>
+
+    <div class="not-found" *ngIf="episodes.length === 0 && !isLoading">
+      Không có tập phim cần duyệt
+    </div>
+  </div>
+
+  <app-pagination
+    [totalData]="totalDataEpisode"
+    [amountDataPerPage]="itemsEpisodePerPage"
+    [currentPageIndex]="currentPageEpisodeIndex"
+    (onPageChange)="onPageChangeEpisode($event)"
+  >
+  </app-pagination>
+</div>
+<app-loading-overlay
+  [visible]="isLoading"
+  message="Đang tải dữ liệu..."
+></app-loading-overlay>

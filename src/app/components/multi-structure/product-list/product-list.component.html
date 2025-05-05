@@ -1,0 +1,40 @@
+<div class="product-list-container">
+  <h2>Danh sách gói</h2>
+
+  <!-- Loading / Error -->
+  <div *ngIf="loading" class="loading">Loading...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+
+  <!-- Không có dữ liệu -->
+  <div *ngIf="!loading && products.length === 0" class="no-data">
+    Không tìm thấy gói thanh toán nào.
+  </div>
+
+  <!-- Danh sách sản phẩm -->
+  <div *ngIf="!loading && products.length > 0" class="product-items">
+    <div *ngFor="let product of products" class="product-item">
+      <h3>{{ product.name }}</h3>
+      <p>{{ product.description }}</p>
+      <p><strong>Giá:</strong> {{ product.priceInGP }} GP</p>
+      <p><strong>Khả dụng:</strong> {{ product.duration }} Ngày</p>
+
+      <!-- Phần điều chỉnh số lượng -->
+      <div class="quantity-control">
+        <button (click)="decreaseQuantity(product.id)">-</button>
+        <span>{{ quantities[product.id] || 1 }}</span>
+        <button (click)="increaseQuantity(product.id)">+</button>
+      </div>
+
+      <!-- Nút Mua -->
+      <button class="purchase-button" (click)="onPurchase(product)">Mua</button>
+    </div>
+  </div>
+
+  <!-- Component phân trang -->
+  <app-pagination
+    [totalData]="totalProducts"
+    [amountDataPerPage]="pageSize"
+    [currentPageIndex]="currentPage"
+    (onPageChange)="onPageChanged($event)"
+  ></app-pagination>
+</div>

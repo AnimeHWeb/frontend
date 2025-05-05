@@ -1,0 +1,12 @@
+<div class="tag-list-container">
+  <h2>Danh sách Tag</h2>
+
+  <div *ngFor="let group of tagGroups$ | async" class="tag-group">
+    <h3 class="tag-type">{{ group.type }}</h3>
+    <div class="tags">
+      <div *ngFor="let tag of group.tags" class="tag-item">
+        <h4 class="tag-name">{{ tag.name }}</h4>
+      </div>
+    </div>
+  </div>
+</div>

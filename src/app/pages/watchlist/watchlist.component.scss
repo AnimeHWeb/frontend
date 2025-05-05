@@ -1,0 +1,141 @@
+.watchlist-container {
+  padding: 12px;
+  color: aliceblue;
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 25px;
+
+  .list-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 85vh;
+    background-color: #323232;
+    padding: 12px;
+    border-radius: 12px;
+
+    h2 {
+      display: flex;
+      margin-bottom: 1rem;
+      margin-block-start: 0px;
+    }
+
+    .watchlist-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .watchlist-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: #4e4c4c;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        &:hover {
+          background-color: #5d5757;
+        }
+
+        .info-container {
+          display: flex;
+          align-items: center;
+          flex: 1;
+          gap: 1rem;
+
+          .poster {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+          }
+
+          .info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex: 1;
+
+            h3 {
+              margin: 0 0 4px;
+              font-size: 1.2rem;
+              flex: 1;
+            }
+
+            p {
+              margin: 0;
+              flex: 1;
+            }
+          }
+        }
+
+        .delete-btn {
+          color: #fff;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            scale: 1.1;
+            color: rgb(255, 94, 94);
+          }
+        }
+      }
+    }
+
+    &.not-found {
+      /* Giữ các style cũ, ví dụ: */
+      min-height: 80vh;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+
+      .typing {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        /* Độ rộng khớp 20 ký tự của "Chưa có lịch sử xem" */
+        width: 20ch;
+        box-sizing: border-box;
+        border-right: 0.15em solid #fff; /* con trỏ nhấp nháy */
+
+        /* Kết hợp 2 animation:
+           1) typeAndBack: gõ -> dừng -> xoá -> dừng
+           2) blinkCaret: con trỏ nhấp nháy 
+        */
+        animation: typeAndBack 6s steps(20, end) infinite,
+          blinkCaret 0.8s step-end infinite;
+      }
+
+      @keyframes typeAndBack {
+        0% {
+          width: 0ch; /* chưa gõ ký tự nào */
+        }
+        30% {
+          width: 20ch; /* gõ xong 20 ký tự */
+        }
+        50% {
+          width: 20ch; /* dừng 1 lúc */
+        }
+        80% {
+          width: 0ch; /* xoá hết (backspace) */
+        }
+        100% {
+          width: 0ch; /* dừng 1 lúc rồi lặp */
+        }
+      }
+
+      @keyframes blinkCaret {
+        50% {
+          border-color: transparent;
+        }
+      }
+    }
+  }
+}

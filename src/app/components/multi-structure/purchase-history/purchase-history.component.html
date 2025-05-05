@@ -1,0 +1,42 @@
+<div class="purchase-history-container">
+  <h2>Lịch sử giao dịch</h2>
+
+  <!-- Hiển thị loading và thông báo lỗi -->
+  <div *ngIf="loading" class="loading">Loading...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+
+  <!-- Hiển thị thông tin khi không có dữ liệu -->
+  <div *ngIf="!loading && purchases.length === 0" class="no-data">
+    Không có dữ liệu lịch sử mua hàng.
+  </div>
+
+  <!-- Hiển thị danh sách lịch sử mua hàng -->
+  <div *ngIf="!loading && purchases.length > 0" class="purchase-items">
+    <div *ngFor="let purchase of purchases" class="purchase-item">
+      <p><strong>Mã giao dịch:</strong> {{ purchase.id }}</p>
+      <p><strong>Tên gói:</strong> {{ purchase.productName }}</p>
+      <p><strong>Số lượng:</strong> {{ purchase.quantity }}</p>
+      <p>
+        <strong>Ngày mua:</strong> {{ purchase.purchaseDate | date : "short" }}
+      </p>
+      <p>
+        <strong>Ngày hết hạn:</strong> {{ purchase.endDate | date : "short" }}
+      </p>
+      <p>
+        <strong>Trạng thái:</strong>
+        {{ purchase.isActive ? "Active" : "Inactive" }}
+      </p>
+      <p>
+        <strong>Được tạo:</strong> {{ purchase.createdAt | date : "short" }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Component phân trang -->
+  <app-pagination
+    [totalData]="totalPurchases"
+    [amountDataPerPage]="pageSize"
+    [currentPageIndex]="currentPage"
+    (onPageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

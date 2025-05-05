@@ -1,0 +1,41 @@
+<div class="container">
+  <!-- Phần 1: Nhập lý do -->
+  <div class="section-1">
+    <label for="reason" class="label"
+      >Nhập lý do không đạt điều kiện phát hành*</label
+    >
+    <textarea
+      id="reason"
+      [(ngModel)]="reason"
+      rows="4"
+      placeholder="Nhập lý do ở đây..."
+    ></textarea>
+  </div>
+
+  <!-- Phần 2: Xác nhận duyệt -->
+  <div class="section-2">
+    <label class="label">Có xác nhận duyệt bộ phim hay không ?</label>
+    <div class="button-group">
+      <button
+        class="btn not-approved"
+        (click)="onNotApproved()"
+        [disabled]="rejectLoading"
+      >
+        <ng-container *ngIf="rejectLoading; else notApprovedText">
+          <span class="spinner"></span> Đang tải...
+        </ng-container>
+        <ng-template #notApprovedText>Không đạt</ng-template>
+      </button>
+      <button
+        class="btn approved"
+        (click)="onConfirmApproval()"
+        [disabled]="approveLoading"
+      >
+        <ng-container *ngIf="approveLoading; else approvedText">
+          <span class="spinner"></span> Đang tải...
+        </ng-container>
+        <ng-template #approvedText>Xác nhận duyệt</ng-template>
+      </button>
+    </div>
+  </div>
+</div>

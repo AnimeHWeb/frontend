@@ -1,0 +1,41 @@
+<div class="user-list">
+  <div
+    *ngFor="let user of users"
+    class="user-item"
+    (click)="handleChooseAccount(user.id)"
+  >
+    <div class="left-section">
+      <img
+        [src]="
+          user.avatarUrl
+            ? buildImgAvatarUrl(user.avatarUrl)
+            : 'assets/avatar-default.png'
+        "
+        [alt]="user.username"
+        class="avatar"
+      />
+      <div class="username">{{ user.username }}</div>
+    </div>
+    <div class="right-section">
+      <div class="role">{{ user.role }}</div>
+      <!-- Hiển thị moderator status nếu bằng 'pending' -->
+      <div class="moderator" *ngIf="user.moderatorRequestStatus === 'pending'">
+        Đăng ký Moderator
+      </div>
+      <div class="active-status">
+        Trạng thái: {{ user.isActive ? "hoạt động" : "khoá" }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Khu vực phân trang -->
+<div class="pagi-container">
+  <app-pagination
+    [totalData]="totalItems"
+    [amountDataPerPage]="size"
+    [currentPageIndex]="page"
+    (onPageChange)="onPageChange($event)"
+  >
+  </app-pagination>
+</div>

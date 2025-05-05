@@ -1,0 +1,34 @@
+<div class="statistic-container">
+  <h2>Thống Kê Anime (Advanced Pie)</h2>
+
+  <div class="info">
+    <p><strong>Tổng Anime:</strong> {{ data.totalAnime }}</p>
+    <p><strong>TV Series:</strong> {{ data.tvSeries }}</p>
+    <p><strong>Movie:</strong> {{ data.movie }}</p>
+    <p><strong>Đã hoàn thành (Movie):</strong> {{ data.finishedMovie }}</p>
+    <p><strong>Chưa hoàn thành (Movie):</strong> {{ data.unfinishedMovie }}</p>
+    <p><strong>Chưa duyệt (Movie):</strong> {{ data.unapprovedMovie }}</p>
+
+    <!-- Nút xuất Excel/CSV/Excel kèm ảnh -->
+    <div class="export-buttons">
+      <button (click)="exportExcel()">Xuất Excel (SheetJS)</button>
+      <button (click)="exportCSV()">Xuất CSV</button>
+      <button (click)="exportExcelWithChart()">Xuất Excel kèm Biểu Đồ</button>
+    </div>
+
+    <!-- Advanced Pie Chart -->
+    <!-- Bọc chart trong 1 container để html2canvas có thể chụp -->
+    <div #chartContainer>
+      <ngx-charts-advanced-pie-chart
+        [view]="view"
+        [scheme]="colorScheme"
+        [results]="single"
+        [gradient]="gradient"
+        (select)="onSelect($event)"
+        (activate)="onActivate($event)"
+        (deactivate)="onDeactivate($event)"
+      >
+      </ngx-charts-advanced-pie-chart>
+    </div>
+  </div>
+</div>

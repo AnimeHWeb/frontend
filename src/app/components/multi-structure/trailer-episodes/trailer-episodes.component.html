@@ -1,0 +1,41 @@
+<div class="container">
+  <!-- Phần trái - Trailer -->
+  <div class="left-section">
+    <label class="title">Trailer</label>
+    <iframe
+      *ngIf="isValidVideoUrl(videoTrailer)"
+      [src]="videoTrailer | safeUrl"
+      frameborder="0"
+      allowfullscreen
+    >
+    </iframe>
+  </div>
+
+  <!-- Phần phải - Thông tin phim -->
+  <div class="right-section">
+    <label class="release-date"
+      >Lịch phát hành dự kiến: {{ releaseDate }}</label
+    >
+    <div class="label-episode">
+      <label class="episode-title">Danh sách tập phim đã cập nhật</label>
+      <div class="add-new" *ngIf="addable" (click)="createEpisode()">
+        Thêm tập mới
+      </div>
+    </div>
+    <div class="container-list-episode">
+      <div class="episode-list">
+        <button
+          *ngFor="let episode of episodes"
+          class="episode-btn"
+          (click)="onClickEpisode(episode.id)"
+          [ngClass]="{
+            'ep-pending': episode.status === 'pending',
+            'ep-rejected': episode.status === 'rejected'
+          }"
+        >
+          {{ episode.episodeNumber }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,303 @@
+.create-anime-pending-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  background: #323232;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 100%;
+  color: white;
+
+  .create-new-anime-label {
+    margin: 0px;
+  }
+
+  .file-create-anime-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    .group-create-anime-input {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .body-form {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+
+    .input-anime-container {
+      display: grid;
+      grid-template-columns: repeat(2, 150px);
+      gap: 12px;
+
+      // Các input text và số
+      input {
+        width: 85%;
+      }
+      textarea {
+        width: 93%;
+      }
+
+      // Textarea full hàng
+      textarea {
+        grid-column: span 2;
+      }
+
+      .date-input {
+        display: flex;
+        flex-direction: column;
+        grid-column: span 2; /* Date Input */
+        width: 98%;
+        color: rgb(216, 216, 216);
+        .date-label {
+          font-size: 20px;
+          margin-bottom: 6px;
+          font-weight: bold;
+          color: #fff;
+        }
+        .date-input {
+          width: 94%;
+          padding: 12px;
+          border: 1px solid black;
+          background-color: #5d5757;
+          border-radius: 4px;
+          font-size: 14px;
+          cursor: text;
+        }
+      }
+
+      // Dropdowns container
+      .dropdown-container {
+        display: grid;
+        grid-template-columns: repeat(2, 150px);
+        gap: 12px;
+      }
+
+      // File input group
+      .file-create-anime-inputs {
+        display: flex;
+        gap: 12px;
+        grid-column: span 2;
+
+        .group-create-anime-input {
+          flex: 1; // Chia đều cho 2 file input
+        }
+      }
+    }
+
+    .preview-container {
+      display: flex;
+      margin-right: 30px;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      .image-preview-banner {
+        position: relative; // Để có thể sử dụng ::before
+        height: 100%;
+        flex: 1;
+        border: 2px solid #5d5757;
+        border-radius: 5px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        font-size: 12px;
+        color: white;
+        background-color: #4e4c4c;
+        overflow: hidden; // Ngăn lớp phủ tràn ra ngoài
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: inherit; // Lấy chính background hiện tại
+          filter: blur(2px) brightness(50%); // Làm mờ và tối đi
+          z-index: 1; // Đảm bảo lớp phủ nằm dưới nội dung
+        }
+
+        // Giữ poster và nội dung trên lớp phủ mờ
+        .image-preview-poster,
+        .content-preview {
+          position: relative;
+          z-index: 2;
+        }
+
+        .image-preview-poster {
+          width: 280px;
+          height: 80%;
+          margin-left: 24px;
+          min-width: 150px;
+          border: 2px solid #5d5757;
+          border-radius: 5px;
+          background-size: cover;
+          background-position: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          color: white;
+          background-color: #4e4c4c;
+        }
+
+        .content-preview {
+          display: flex;
+          flex-direction: column;
+          height: 90%;
+          max-width: 100%;
+          padding: 10px;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          word-break: break-word;
+          text-align: left;
+          border-radius: 5px;
+        }
+      }
+    }
+  }
+  .btn-control {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 12px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px;
+    border: 1px solid #5d5757;
+    border-radius: 5px;
+    font-size: 14px;
+    background: #4e4c4c;
+    color: white;
+
+    &::placeholder {
+      color: #ddd;
+    }
+  }
+
+  textarea {
+    height: 60px;
+    resize: none;
+  }
+
+  label {
+    font-weight: bold;
+    color: white;
+    min-width: 120px;
+  }
+
+  .file-create-anime-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .group-create-anime-input {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #fff;
+      }
+
+      input[type="file"] {
+        display: none; // Ẩn input file mặc định
+      }
+
+      .file-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: start;
+        gap: 8px;
+        padding: 10px 12px;
+        cursor: pointer;
+        background: #4e4c4c;
+        color: white;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+
+        &:hover {
+          background: #5e5c5c;
+          border-color: #fff;
+        }
+
+        &:active {
+          background: #3e3d3d;
+        }
+
+        .icon {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: auto;
+    border: 1px white solid;
+
+    &:first-of-type {
+      background: #b14d57;
+      color: rgb(255, 255, 255);
+
+      &:hover {
+        background: rgb(44, 44, 44);
+        color: white;
+        transform: translateY(-2px);
+      }
+    }
+
+    &:last-of-type {
+      background: #5d5757;
+      color: white;
+
+      &:hover {
+        background: rgb(44, 44, 44);
+        transform: translateY(-2px);
+      }
+    }
+  }
+  /* Hiệu ứng loading */
+  .loader {
+    margin-left: 10px;
+    width: 8px;
+    height: 8px;
+    border: 3px solid white;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,164 @@
+<div class="create-anime-pending-form">
+  <h2 class="create-new-anime-label">Tạo mới một anime</h2>
+  <div class="body-form">
+    <div class="input-anime-container">
+      <input
+        type="text"
+        [(ngModel)]="newAnimeTitle"
+        placeholder="Tiêu đề anime*"
+      />
+      <input
+        type="text"
+        [(ngModel)]="linkTrailer"
+        placeholder="Nhập link trailer"
+      />
+      <input
+        type="number"
+        [(ngModel)]="expectedEpisodes"
+        placeholder="Số tập dự kiến*"
+      />
+      <div class="date-input">
+        <label class="date-label">Lịch phát hành dự kiến</label>
+        <input type="date" (change)="onDateChange($event)" class="date-input" />
+      </div>
+      <textarea
+        [(ngModel)]="newAnimeDescription"
+        placeholder="Mô tả anime"
+      ></textarea>
+      <div class="dropdown-container">
+        <div class="dropdown-filer">
+          <app-dropdown-button
+            [label]="'Thể loại'"
+            [options]="tagGenresFiltered"
+            [variant]="'secondary'"
+            [size]="'small'"
+            [customDropField]="'second-type'"
+            [disabled]="false"
+            [multiSelect]="true"
+            [isDisplayCheckbox]="false"
+            (onSelect)="handleSelect('genre', $event)"
+            [isOpen]="activeDropdown === 'genre'"
+            (toggle)="toggleDropdown('genre')"
+            [isDisplaySelectedOpptionLabels]="false"
+            [isButtonControl]="false"
+            [isSearchable]="true"
+          >
+          </app-dropdown-button>
+        </div>
+
+        <div class="dropdown-filer">
+          <app-dropdown-button
+            [label]="'Studio'"
+            [options]="tagStudiosFiltered"
+            [variant]="'secondary'"
+            [size]="'small'"
+            [customDropField]="'second-type'"
+            [disabled]="false"
+            [multiSelect]="false"
+            [isDisplaySelectedOpptionLabels]="true"
+            [isDisplayCheckbox]="false"
+            (onSelect)="handleSelect('studio', $event)"
+            [isOpen]="activeDropdown === 'studio'"
+            (toggle)="toggleDropdown('studio')"
+            [isSearchable]="true"
+          >
+          </app-dropdown-button>
+        </div>
+
+        <div class="dropdown-filer">
+          <app-dropdown-button
+            [label]="'Series'"
+            [options]="series"
+            [variant]="'secondary'"
+            [size]="'small'"
+            [customDropField]="'second-type'"
+            [disabled]="false"
+            [multiSelect]="false"
+            [isDisplaySelectedOpptionLabels]="true"
+            [isDisplayCheckbox]="false"
+            (onSelect)="handleSelect('series', $event)"
+            [isOpen]="activeDropdown === 'series'"
+            (toggle)="toggleDropdown('series')"
+            [isSearchable]="true"
+          >
+          </app-dropdown-button>
+        </div>
+
+        <div class="dropdown-filer">
+          <app-dropdown-button
+            [label]="'Quốc gia'"
+            [options]="tagNationalFiltered"
+            [variant]="'secondary'"
+            [size]="'small'"
+            [customDropField]="'second-type'"
+            [disabled]="false"
+            [multiSelect]="false"
+            [isDisplaySelectedOpptionLabels]="true"
+            [isDisplayCheckbox]="false"
+            (onSelect)="handleSelect('national', $event)"
+            [isOpen]="activeDropdown === 'national'"
+            (toggle)="toggleDropdown('national')"
+            [isSearchable]="true"
+          >
+          </app-dropdown-button>
+        </div>
+      </div>
+
+      <div class="file-create-anime-inputs">
+        <div class="group-create-anime-input">
+          <label>Ảnh Banner:</label>
+          <input
+            type="file"
+            id="bannerUpload"
+            (change)="onFileSelected($event, 'banner')"
+          />
+          <label for="bannerUpload" class="file-label">
+            <span class="icon">📁</span> Chọn ảnh Banner
+          </label>
+        </div>
+
+        <div class="group-create-anime-input">
+          <label>Ảnh Poster:</label>
+          <input
+            type="file"
+            id="posterUpload"
+            (change)="onFileSelected($event, 'poster')"
+          />
+          <label for="posterUpload" class="file-label">
+            <span class="icon">📸</span> Chọn ảnh Poster
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <div
+        class="image-preview-banner"
+        [ngStyle]="{
+          backgroundImage: bannerPreview ? 'url(' + bannerPreview + ')' : 'none'
+        }"
+      >
+        <div
+          class="image-preview-poster"
+          *ngIf="posterPreview; else defaultPoster"
+          [ngStyle]="{ backgroundImage: 'url(' + posterPreview + ')' }"
+        ></div>
+        <ng-template #defaultPoster>
+          <div class="image-preview-poster">Preview Poster</div>
+        </ng-template>
+        <div class="content-preview">
+          <h2>{{ newAnimeTitle }}</h2>
+          <p>{{ newAnimeDescription }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-control">
+    <button (click)="cancel()" [disabled]="isLoading">Hủy</button>
+    <button (click)="submit()" [disabled]="isLoading">
+      <span>Xác nhận</span>
+      <span *ngIf="isLoading" class="loader"></span>
+    </button>
+  </div>
+</div>

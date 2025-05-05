@@ -1,0 +1,104 @@
+<div
+  class="popup-overlay-create-episode"
+  (click)="closePopupOnOutside($event)"
+  [class.opened]="(openedForms$ | async)?.['create-episode']"
+>
+  <div
+    class="popup-create-episode"
+    [class.opened]="(openedForms$ | async)?.['create-episode']"
+    #popupContainer
+  >
+    <div class="input-area">
+      <!-- Input Drag & Drop file mp4 -->
+      <div class="form-group drag-drop-group">
+        <label class="drag-label">Tải lên file video (mp4)</label>
+        <div
+          class="drag-drop-area"
+          (click)="fileInput.click()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onFileDrop($event)"
+        >
+          <p *ngIf="data.selectedFile; else defaultText">
+            {{ data.selectedFile.name }}
+          </p>
+          <ng-template #defaultText>
+            <p>Kéo và thả file mp4 vào đây, hoặc click để chọn file</p>
+          </ng-template>
+          <input
+            type="file"
+            accept="video/mp4"
+            (change)="onFileSelected($event)"
+            hidden
+            #fileInput
+          />
+        </div>
+      </div>
+
+      <!-- Input Date -->
+      <div class="form-group">
+        <label class="date-label">Lịch chiếu tập mới</label>
+        <input type="date" (change)="onDateChange($event)" class="date-input" />
+      </div>
+
+      <!-- Tên tài khoản hoặc email -->
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Tóm tắt tập phim"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập tóm tắt"
+          [value]="data.summary"
+          (valueChange)="handleOnChangeSummary($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+          (enterPress)="onFormSubmit()"
+        ></app-dynamic-input>
+      </div>
+
+      <!-- Nhập tên tập (Số tập) -->
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Nhập tên tập (Tập thứ ?)"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập số tập"
+          [value]="data.episodeNumber"
+          (valueChange)="handleOnChangeEpisodeNumber($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+          (enterPress)="onFormSubmit()"
+        ></app-dynamic-input>
+      </div>
+    </div>
+
+    <div class="bottom-btn">
+      <!-- Nút hành động -->
+      <div class="form-actions">
+        <app-interactive-button
+          [buttonText]="'Huỷ'"
+          [buttonType]="'primary'"
+          [buttonSize]="'small'"
+          [isDisabled]="false"
+          [iconName]=""
+          [tooltipText]="'Nhấn để xác nhận'"
+          (buttonClick)="closePopup()"
+        ></app-interactive-button>
+        <app-interactive-button
+          [buttonText]="'Xác nhận'"
+          [buttonType]="'primary'"
+          [buttonSize]="'small'"
+          [isDisabled]="false"
+          [isLoading]="loading"
+          [iconName]=""
+          [tooltipText]="'Nhấn để xác nhận'"
+          (buttonClick)="onFormSubmit()"
+        ></app-interactive-button>
+      </div>
+    </div>
+  </div>
+</div>

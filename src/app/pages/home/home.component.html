@@ -1,0 +1,100 @@
+<div class="home-container">
+  <div class="banner-container">
+    <!-- Hero Banner: Banner chính toàn chiều rộng -->
+    <header class="banner-hero" tabindex="0">
+      <img [src]="mainBanner ? mainBanner : defaultBanner" alt="Phim nổi bật" />
+      <div class="hero-overlay" *ngIf="!isLoading">
+        <h1 class="hero-title">
+          {{ homeBanner[0] ? homeBanner[0].title : "" }}
+        </h1>
+        <p class="hero-description">Top 1 BXH phim hay nhất</p>
+        <div
+          class="hero-cta"
+          title="Watch Featured Movie"
+          (click)="onClickWatchNow(homeBanner[0].id)"
+        >
+          Xem luôn
+        </div>
+      </div>
+    </header>
+
+    <!-- Slider Phim Gợi Ý -->
+    <section class="recommended-banners" aria-label="Recommended Movies">
+      <div
+        *ngFor="let item of homeBanner.slice(1, 4)"
+        class="recommend-item"
+        tabindex="0"
+        (click)="onClickWatchNow(item.id)"
+      >
+        <img
+          [src]="buildBannerUrl(item.bannerUrl, 'small')"
+          alt="{{ item.title }}"
+        />
+        <div class="item-info">
+          <h2>{{ item.title }}</h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- Khu vực nội dung động -->
+    <section class="dynamic-content">
+      <!-- Random Movie & Thông tin nổi bật -->
+      <div class="random-movie" tabindex="0">
+        <div class="random-info">
+          <h2>Top Phim Nổi Bật</h2>
+          <p>Chưa biết xem gì sao?</p>
+        </div>
+        <button
+          class="random-cta"
+          title="Watch a random movie"
+          (click)="onClickRandomAnime()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="42"
+            height="42"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="15 10 20 15 15 20"></polyline>
+            <path d="M4 4v7a4 4 0 0 0 4 4h12"></path>
+          </svg>
+          <span>Xem ngẫu nhiên</span>
+        </button>
+      </div>
+
+      <!-- Danh sách phim hot -->
+      <div class="top-movies">
+        <h3 class="top-movies-title">Trending Now</h3>
+        <div class="movies-grid">
+          <app-movie-card
+            *ngFor="let topvideo of topvideos"
+            [video]="topvideo"
+            [isList]="true"
+          ></app-movie-card>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Hiển thị danh sách theo từng danh mục -->
+  <section class="video-section">
+    <app-video-section
+      *ngFor="let category of videos"
+      [category]="category"
+    ></app-video-section>
+  </section>
+
+  <app-footer></app-footer>
+</div>
+
+<div class="overlay-wrapper">
+  <app-loading-overlay
+    [visible]="isLoading"
+    message="Đang tải dữ liệu..."
+  ></app-loading-overlay>
+</div>

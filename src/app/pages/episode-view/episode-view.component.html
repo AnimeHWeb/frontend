@@ -1,0 +1,133 @@
+<div class="episode-view-container" [ngClass]="{ 'lights-off': isLightOff }">
+  <!-- Thêm overlay -->
+  <div class="lights-off-overlay"></div>
+
+  <div class="top-side">
+    <div class="top-title">
+      {{ episode.anime.title ? episode.anime.title : "Tập phim không tồn tại" }}
+    </div>
+    <div
+      class="revert-btn"
+      *ngIf="role === 'ROLE_ADMIN' && episode.status === 'approved'"
+      (click)="revertEpisode()"
+    >
+      Ngừng phát hành
+    </div>
+  </div>
+  <div class="body-episode-view">
+    <div class="video-player">
+      <app-video-player
+        *ngIf="episode.videoUrl"
+        [class.light-off]="isLightOff"
+        [videoSrc]="videoUrl + episode.videoUrl"
+        [historyDuration]="durationWatched ?? 0"
+        [historyId]="historyId"
+        [episodeId]="episode.id"
+        [statusEpisode]="episode.status ?? 'pending'"
+        (currentTimeUpdated)="onCurrentTimeUpdated($event)"
+      ></app-video-player>
+      <div class="no-video-available" *ngIf="!episode.videoUrl">
+        Tập phim không khả dụng
+      </div>
+
+      <!-- chưa update -->
+      <div class="control-video">
+        <div class="part-left">
+          <div class="label-list-episodes">Danh sách tập phim</div>
+          <app-dropdown-button
+            [label]="selectedSeries.label"
+            [options]="series"
+            [variant]="'secondary'"
+            [size]="'large'"
+            [customDropField]="'four-type'"
+            [disabled]="false"
+            [multiSelect]="false"
+            [isDisplayCheckbox]="false"
+            (onSelect)="handleSelect($event)"
+            [isDisplaySelectedOpptionLabels]="false"
+            [isButtonControl]="false"
+            [minHeight]="false"
+          >
+          </app-dropdown-button>
+        </div>
+        <div class="part-right">
+          <app-interactive-button
+            [buttonText]="'Báo lỗi'"
+            [buttonType]="'secondary'"
+            [buttonSize]="'small'"
+            [isDisabled]="false"
+            [iconName]=""
+            [tooltipText]="'Nhấn để xác nhận'"
+            (buttonClick)="handleClickReport($event)"
+            (buttonHover)="handleHover($event)"
+            (buttonFocus)="handleFocus($event)"
+            >⚠</app-interactive-button
+          >
+
+          <app-interactive-button
+            class="btn-toggle-lights"
+            [buttonText]="!isLightOff ? 'Tắt đèn' : 'Bật đèn'"
+            [buttonType]="'primary'"
+            [buttonSize]="'small'"
+            [isDisabled]="false"
+            [isLoading]="false"
+            [iconName]=""
+            [tooltipText]="'Nhấn để xác nhận'"
+            (buttonClick)="handleTurnOffLight($event)"
+            (buttonHover)="handleHover($event)"
+            (buttonFocus)="handleFocus($event)"
+            >💡</app-interactive-button
+          >
+        </div>
+      </div>
+      <div class="bottom-control-video">
+        <div class="container-list-episode">
+          <div class="episode-list">
+            <button
+              *ngFor="let ep of episodes"
+              class="episode-btn"
+              (click)="onClickOtherEpisode(ep.id)"
+              [ngClass]="{
+                'selected-episode': ep.id === episode.id,
+                'ep-pending': ep.status === 'pending',
+                'ep-rejected': ep.status === 'rejected'
+              }"
+            >
+              {{ ep.episodeNumber }}
+            </button>
+          </div>
+        </div>
+        <div class="episode-description">
+          <div class="title">Mô tả tập phim</div>
+          <div class="content-description-episode">
+            {{ episode.description }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-comment-film
+      *ngIf="episode.status === 'approved'"
+      [animeId]="episode.anime.id"
+    ></app-comment-film>
+    <app-episode-approval
+      [episodeId]="episode.id"
+      [episodeName]="episode.episodeNumber.toString()"
+      [episodeStatus]="episode.status"
+      [reasonReject]="episode.rejectedReason ?? ''"
+      *ngIf="
+        (role === 'ROLE_ADMIN' || role === 'ROLE_MODERATOR') &&
+        episode.status !== 'approved' &&
+        episode.status
+      "
+    >
+    </app-episode-approval>
+  </div>
+</div>
+
+<div class="overlay-wrapper">
+  <app-loading-overlay
+    [visible]="loading"
+    message="Đang tải dữ liệu..."
+  ></app-loading-overlay>
+</div>

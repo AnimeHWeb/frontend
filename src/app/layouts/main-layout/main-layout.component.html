@@ -1,0 +1,79 @@
+<main class="main-side">
+  <header class="header-top">
+    <app-header></app-header>
+  </header>
+  <body class="body-site">
+    <nav class="menu">
+      <app-sidebar (menuToggled)="toggleMenu($event)"></app-sidebar>
+    </nav>
+    <div
+      class="main-content"
+      [ngStyle]="{
+        'margin-left': isOpen ? '200px' : isMobile ? '0px' : '63px'
+      }"
+    >
+      <router-outlet></router-outlet>
+    </div>
+  </body>
+</main>
+
+<!-- Popup đăng nhập -->
+<app-popup-login-form
+  class="login-form-popup"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['login']"
+></app-popup-login-form>
+
+<app-forgot-password
+  class="forgot-password-form-popup"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['forgot-password']"
+>
+</app-forgot-password>
+
+<!-- Popup đăng ký -->
+<app-register-form
+  class="register-form-popup"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['register']"
+></app-register-form>
+
+<!-- Popup đăng ký -->
+<app-reg-moderator
+  class="register-reg-form-popup"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['reg-moderator']"
+></app-reg-moderator>
+
+<app-update-password
+  class="update-password"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['update-password']"
+></app-update-password>
+
+<!-- cảnh báo đăng xuất -->
+<app-warning-modal
+  *ngIf="(isOpenForm$ | async)?.['modal-warning']"
+  title="Thông báo!"
+  message="Bạn có chắc chắn muốn đăng xuất?"
+  type="warning"
+  confirmText="Xác nhận"
+  cancelText="Hủy"
+  [isLoading]="isloading"
+  (confirm)="onConfirmLogout()"
+  (cancel)="isloading ? null : closePopup()"
+  (closeEvent)="isloading ? null : closePopup()"
+></app-warning-modal>
+
+<!-- yêu cầu đăng nhập lại -->
+<app-warning-modal
+  *ngIf="(isOpenForm$ | async)?.['re-login-required-form']"
+  title="Opp!"
+  message="Lỗi xác thực thông tin, yêu cầu đăng nhập lại"
+  type="error"
+  confirmText="Xác nhận"
+  [isLoading]="isloading"
+  (confirm)="reLogin()"
+  (cancel)="reLogin()"
+  (closeEvent)="reLogin()"
+></app-warning-modal>

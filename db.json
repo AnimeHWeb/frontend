@@ -1,0 +1,704 @@
+{
+  "tags": {
+    "code": 200,
+    "message": "Successful",
+    "status": "Ok",
+    "result": [
+      {
+        "value": 1,
+        "label": "Phiêu lưu"
+      },
+      {
+        "value": 3,
+        "label": "Hành động"
+      },
+      {
+        "value": 4,
+        "label": "Hài kịch"
+      },
+      {
+        "value": 6,
+        "label": "Kinh dị"
+      },
+      {
+        "value": 7,
+        "label": "Giả tưởng"
+      },
+      {
+        "value": 9,
+        "label": "Lãng mạn"
+      },
+      {
+        "value": 10,
+        "label": "Trinh thám"
+      },
+      {
+        "value": 13,
+        "label": "Buff bẩn"
+      },
+      {
+        "value": 23,
+        "label": "Ăn hành"
+      },
+      {
+        "value": 53,
+        "label": "18+",
+        "disabled": true
+      }
+    ]
+  },
+  "notices": {
+    "code": 200,
+    "message": "Successful",
+    "status": "Ok",
+    "result": [
+      {
+        "id": 1,
+        "title": "Cảnh báo đăng phim",
+        "message": "Thông báo này cảnh báo bạn đã đăng muộn tập của một bộ phim trong tuần này....",
+        "time": "12-01-2025 12:02:12",
+        "seen": false
+      },
+      {
+        "id": 12,
+        "title": "Cảnh báo đăng phim",
+        "message": "Thông báo này cảnh báo bạn đã đăng muộn tập của một bộ phim trong tuần này....",
+        "time": "12-02-2025 12:02:12",
+        "seen": false
+      },
+      {
+        "id": 13,
+        "title": "Cảnh báo đăng phim",
+        "message": "Thông báo này cảnh báo bạn đã đăng muộn tập của một bộ phim trong tuần này....",
+        "time": "24-02-2025 00:02:12",
+        "seen": false
+      },
+      {
+        "id": 14,
+        "title": "Cảnh báo đăng phim",
+        "message": "Thông báo này cảnh báo bạn đã đăng muộn tập của một bộ phim trong tuần này....",
+        "time": "24-02-2025 11:02:12",
+        "seen": true
+      }
+    ]
+  },
+  "movie_search": {
+    "code": 200,
+    "message": "Successful",
+    "status": "Ok",
+    "result": [
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim A",
+        "fields": [
+          { "label": "Thể loại", "value": "Hành động" },
+          { "label": "Năm", "value": "2023" },
+          { "label": "Đánh giá", "value": "8.5" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim B",
+        "fields": [
+          { "label": "Thể loại", "value": "Kinh dị" },
+          { "label": "Năm", "value": "2022" },
+          { "label": "Đánh giá", "value": "7.9" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim C",
+        "fields": [
+          { "label": "Thể loại", "value": "Hài kịch" },
+          { "label": "Năm", "value": "2024" },
+          { "label": "Đánh giá", "value": "9.1" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim A",
+        "fields": [
+          { "label": "Thể loại", "value": "Hành động" },
+          { "label": "Năm", "value": "2023" },
+          { "label": "Đánh giá", "value": "8.5" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim B",
+        "fields": [
+          { "label": "Thể loại", "value": "Kinh dị" },
+          { "label": "Năm", "value": "2022" },
+          { "label": "Đánh giá", "value": "7.9" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim C",
+        "fields": [
+          { "label": "Thể loại", "value": "Hài kịch" },
+          { "label": "Năm", "value": "2024" },
+          { "label": "Đánh giá", "value": "9.1" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim A",
+        "fields": [
+          { "label": "Thể loại", "value": "Hành động" },
+          { "label": "Năm", "value": "2023" },
+          { "label": "Đánh giá", "value": "8.5" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim B",
+        "fields": [
+          { "label": "Thể loại", "value": "Kinh dị" },
+          { "label": "Năm", "value": "2022" },
+          { "label": "Đánh giá", "value": "7.9" }
+        ]
+      },
+      {
+        "imageUrl": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+        "title": "Bộ phim C",
+        "fields": [
+          { "label": "Thể loại", "value": "Hài kịch" },
+          { "label": "Năm", "value": "2024" },
+          { "label": "Đánh giá", "value": "9.1" }
+        ]
+      }
+    ]
+  },
+  "list_film": {
+    "code": 200,
+    "message": "Successful",
+    "status": "Ok",
+    "result": [
+      {
+        "category": "Mới cập nhật",
+        "videos": [
+          {
+            "id": "1",
+            "title": "Sát thủ về vườn",
+            "videoUrl": "hhttps://www.youtube.com/watch?v=VJdP0v4JnqM&pp=ygUiIHPDoXQgdGjhu6cgduG7gSB2xrDhu51uIC0gdHJhaWxlcg%3D%3D",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2024/11/30/animevsub-CtX16cXVvh.jpg",
+            "description": "Sát thủ này đã nghỉ hưu....",
+            "duration": "5:45",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "2",
+            "title": "Dược sư tự sự",
+            "videoUrl": "https://www.youtube.com/watch?v=kKvM5NtnzMQ",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2025/01/17/animevsub-0WxXh41w8K.jpg",
+            "description": "Dược sư xinh đẹp và bí ẩn.",
+            "duration": "12:20",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 10000000
+          },
+          {
+            "id": "3",
+            "title": "Thợ săn quỷ",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "http://cdn.animevietsub.bio/data/poster/2025/01/12/animevsub-WCb7oRq8C9.jpg",
+            "description": "Một thợ săn quỷ với sức mạnh kinh hoàng.",
+            "duration": "9:30",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "4",
+            "title": "Đầu chim",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "5",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "6",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "7",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "8",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          }
+        ]
+      },
+      {
+        "category": "Đề cử",
+        "videos": [
+          {
+            "id": "1",
+            "title": "Sát thủ về vườn",
+            "videoUrl": "https://www.youtube.com/watch?v=8pSBzgIFrDg",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2024/11/30/animevsub-CtX16cXVvh.jpg",
+            "description": "Sát thủ này đã nghỉ hưu....",
+            "duration": "5:45",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "2",
+            "title": "Dược sư tự sự",
+            "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2025/01/17/animevsub-0WxXh41w8K.jpg",
+            "description": "Dược sư xinh đẹp và bí ẩn.",
+            "duration": "12:20",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "3",
+            "title": "Thợ săn quỷ",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "http://cdn.animevietsub.bio/data/poster/2025/01/12/animevsub-WCb7oRq8C9.jpg",
+            "description": "Một thợ săn quỷ với sức mạnh kinh hoàng.",
+            "duration": "9:30",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "4",
+            "title": "Đầu chim",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "5",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "6",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "7",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "8",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          }
+        ]
+      },
+      {
+        "category": "Sắp chiếu",
+        "videos": [
+          {
+            "id": "1",
+            "title": "Sát thủ về vườn",
+            "videoUrl": "https://www.youtube.com/watch?v=8pSBzgIFrDg",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2024/11/30/animevsub-CtX16cXVvh.jpg",
+            "description": "Sát thủ này đã nghỉ hưu....",
+            "duration": "5:45",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "2",
+            "title": "Dược sư tự sự",
+            "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2025/01/17/animevsub-0WxXh41w8K.jpg",
+            "description": "Dược sư xinh đẹp và bí ẩn.",
+            "duration": "12:20",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "3",
+            "title": "Thợ săn quỷ",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "http://cdn.animevietsub.bio/data/poster/2025/01/12/animevsub-WCb7oRq8C9.jpg",
+            "description": "Một thợ săn quỷ với sức mạnh kinh hoàng.",
+            "duration": "9:30",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "4",
+            "title": "Đầu chim",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "5",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "6",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "7",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "8",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          }
+        ]
+      },
+      {
+        "category": "Top xem nhiều nhất",
+        "videos": [
+          {
+            "id": "1",
+            "title": "Sát thủ về vườn",
+            "videoUrl": "https://www.youtube.com/watch?v=8pSBzgIFrDg",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2024/11/30/animevsub-CtX16cXVvh.jpg",
+            "description": "Sát thủ này đã nghỉ hưu....",
+            "duration": "5:45",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "2",
+            "title": "Dược sư tự sự",
+            "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2025/01/17/animevsub-0WxXh41w8K.jpg",
+            "description": "Dược sư xinh đẹp và bí ẩn.",
+            "duration": "12:20",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "3",
+            "title": "Thợ săn quỷ",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "http://cdn.animevietsub.bio/data/poster/2025/01/12/animevsub-WCb7oRq8C9.jpg",
+            "description": "Một thợ săn quỷ với sức mạnh kinh hoàng.",
+            "duration": "9:30",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "4",
+            "title": "Đầu chim",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "5",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "6",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "7",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "8",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "1",
+            "title": "Sát thủ về vườn",
+            "videoUrl": "https://www.youtube.com/watch?v=8pSBzgIFrDg",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2024/11/30/animevsub-CtX16cXVvh.jpg",
+            "description": "Sát thủ này đã nghỉ hưu....",
+            "duration": "5:45",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "2",
+            "title": "Dược sư tự sự",
+            "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+            "thumbnail": "https://cdn.animevietsub.page/data/poster/2025/01/17/animevsub-0WxXh41w8K.jpg",
+            "description": "Dược sư xinh đẹp và bí ẩn.",
+            "duration": "12:20",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "3",
+            "title": "Thợ săn quỷ",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "http://cdn.animevietsub.bio/data/poster/2025/01/12/animevsub-WCb7oRq8C9.jpg",
+            "description": "Một thợ săn quỷ với sức mạnh kinh hoàng.",
+            "duration": "9:30",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "4",
+            "title": "Đầu chim",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/23/animevsub-AMdelzd9hY.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "5",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "6",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "7",
+            "title": "Hành trình của pháp sư",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2025/02/20/animevsub-qinXZsyU18.jpg",
+            "description": "Câu chuyện về một pháp sư trẻ tuổi trên hành trình khám phá thế giới.",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "8",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "8",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          },
+          {
+            "id": "8",
+            "title": "Nhà khoa học chơi đá",
+            "videoUrl": "https://www.w3schools.com/html/movie.mp4",
+            "thumbnail": "https://cdn.animevietsub.bio/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg",
+            "description": "Câu chuyện về một nhà khoa học chơi đá ...",
+            "duration": "15:10",
+            "ep": 12,
+            "total_ep": 24,
+            "rating": 9.5,
+            "view": 2134124
+          }
+        ]
+      }
+    ]
+  }
+}

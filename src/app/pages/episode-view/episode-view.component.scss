@@ -1,0 +1,252 @@
+.episode-view-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  height: 110vh;
+  .top-side {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: rgb(92, 92, 92);
+    .top-title {
+      color: white;
+      padding: 16px;
+      font-size: 20px;
+    }
+
+    .revert-btn {
+      margin-right: 12px;
+      cursor: pointer;
+      background-color: #5d5757;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      text-align: center;
+      border: 1px white solid;
+
+      &:hover {
+        background-color: #3e3b3b;
+        transform: translateY(-2px);
+      }
+
+      &:active {
+        transform: translateY(0);
+        background-color: #302b2b;
+      }
+    }
+  }
+
+  .body-episode-view {
+    display: flex;
+    flex: 1;
+    width: 100%;
+
+    .video-player {
+      display: flex;
+      flex-direction: column;
+      flex: 4;
+      padding: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      app-video-player {
+        min-height: 64vh;
+        width: 100%;
+        &.light-off {
+          z-index: 100;
+        }
+      }
+
+      .no-video-available {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 64vh;
+        font-size: 32px;
+        color: white;
+        background-color: #5d5757;
+        border-radius: 12px;
+        border: 1px white solid;
+        text-shadow: 0 4px 6px rgba($color: #000000, $alpha: 1);
+        &.light-off {
+          min-height: 70vh;
+        }
+      }
+
+      .control-video {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+        padding: 12px;
+        .part-left {
+          display: flex;
+          gap: 12px;
+          .label-list-episodes {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            white-space: nowrap;
+            color: white;
+            height: 40px;
+            font-size: 28px;
+          }
+        }
+
+        .part-right {
+          display: flex;
+          gap: 12px;
+          .btn-toggle-lights {
+            position: relative;
+            z-index: 101;
+            // Cao hơn overlay, hiển thị nút “Tắt đèn”
+          }
+        }
+      }
+
+      .bottom-control-video {
+        display: flex;
+        width: 100%;
+        max-height: 200px;
+        flex: 1;
+        gap: 12px;
+
+        .container-list-episode {
+          background-color: #323232;
+          flex: 1;
+          padding: 12px;
+          border: 1px white solid;
+          border-radius: 8px;
+          .episode-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-height: 120px;
+            overflow: auto;
+            .episode-btn {
+              width: 36px;
+              height: 36px;
+              color: #ddd;
+              border-radius: 8px;
+              border: 1px solid #ddd;
+              background-color: #5d5757;
+              cursor: pointer;
+              transition: 0.3s;
+              &.selected-episode {
+                background-color: #ddd;
+                color: #323232;
+              }
+
+              &.ep-rejected {
+                background-color: #e25d5d;
+                color: #fbff00;
+              }
+
+              &.ep-pending {
+                background-color: #0073df;
+                color: white;
+              }
+
+              &:hover {
+                background-color: #f0f0f0;
+                color: #323232;
+              }
+            }
+          }
+        }
+
+        .episode-description {
+          background-color: #323232;
+          flex: 1;
+          padding: 12px;
+          border: 1px white solid;
+          border-radius: 8px;
+          color: white;
+          .title {
+            font-size: 20px;
+            font-weight: 800;
+          }
+          .content-description-episode {
+            max-height: 100px;
+            overflow: auto;
+          }
+        }
+      }
+    }
+
+    app-comment-film {
+      display: flex;
+      flex: 2; // Chiếm 2 phần
+      padding: 12px;
+      height: 100vh;
+    }
+
+    app-episode-approval {
+      display: flex;
+      flex: 2; // Chiếm 2 phần
+      padding: 12px;
+      height: 100vh;
+    }
+  }
+
+  // Overlay đen mờ
+  .lights-off-overlay {
+    display: none; // mặc định ẩn
+  }
+
+  &.lights-off {
+    .lights-off-overlay {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 50;
+      background-color: rgba(0, 0, 0, 0.9);
+      pointer-events: none;
+      /* pointer-events: none để user vẫn click vào video/nút 
+         trong layer trên overlay 
+      */
+    }
+  }
+}
+
+@media (max-width: 1080px) {
+  .bottom-control-video {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .control-video {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .label-list-episodes {
+    font-size: 18px !important;
+  }
+
+  .body-episode-view {
+    display: flex;
+    flex-direction: column;
+  }
+  app-video-player {
+    min-height: 400px !important;
+  }
+  .no-video-available {
+    min-height: 400px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  app-video-player {
+    min-height: 250px !important;
+  }
+  .no-video-available {
+    min-height: 250px !important;
+  }
+}

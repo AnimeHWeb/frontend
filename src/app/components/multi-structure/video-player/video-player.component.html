@@ -1,0 +1,130 @@
+<div class="video-container" (mousemove)="onMouseMove($event)">
+  <div class="video-player-container">
+    <video (click)="togglePlay()" #videoElement></video>
+    <div class="overlay-player-episode" (click)="togglePlay()">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+        />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Thanh điều khiển custom -->
+  <div class="custom-controls">
+    <div class="btn-control-left">
+      <div class="process-bar-container">
+        <input
+          type="range"
+          class="progress-bar"
+          min="0"
+          max="100"
+          step="0.1"
+          [value]="progress"
+          (input)="seekVideo($event)"
+        />
+        <div class="time-display">{{ currentTime }} / {{ totalTime }}</div>
+      </div>
+
+      <button (click)="togglePlay()">
+        {{ isPlaying ? "⏸" : "▶" }}
+      </button>
+      <button (click)="seekBackward()" [title]="'-1p30s'">⏪</button>
+      <button (click)="seekForward()" [title]="'+1p30s'">⏩</button>
+    </div>
+    <div class="btn-control-right">
+      <label>
+        <select #qualitySelector (change)="changeQuality($event)">
+          <option *ngFor="let quality of qualityLevels" [value]="quality.index">
+            {{ quality.label }}
+          </option>
+        </select>
+      </label>
+
+      <label>
+        <select (change)="changePlaybackSpeed($event)">
+          <option
+            *ngFor="let speed of playbackSpeeds"
+            [value]="speed.value"
+            [selected]="speed.value === 1.0"
+          >
+            {{ speed.label }}
+          </option>
+        </select>
+      </label>
+
+      <div class="volume-controls">
+        <button
+          (mouseenter)="showVolumeSlider = true"
+          (mouseleave)="hideVolumeSliderWithDelay()"
+        >
+          🔊
+        </button>
+
+        <div
+          class="volume-slider-container"
+          *ngIf="showVolumeSlider"
+          (mouseenter)="cancelHideVolumeSlider()"
+          (mouseleave)="hideVolumeSliderWithDelay()"
+        >
+          <input
+            type="range"
+            class="volume-slider"
+            orient="vertical"
+            min="0"
+            max="1"
+            step="0.1"
+            [(ngModel)]="volume"
+            (input)="setVolume()"
+          />
+        </div>
+      </div>
+
+      <button (click)="toggleFullscreen()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          heigh="20px"
+          width="20px"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="size-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- yêu cầu đăng nhập lại -->
+<app-warning-modal
+  *ngIf="(isOpenForm$ | async)?.['return-video-duration']"
+  title="Thông báo!"
+  [message]="
+    'Tập này đang xem dở tới: ' +
+    formatTime(historyDuration) +
+    '<br />' +
+    'Bạn có muốn tiếp tục xem?'
+  "
+  type="info"
+  confirmText="Xác nhận"
+  [isLoading]="isloading"
+  (confirm)="confirmContinue()"
+  (cancel)="cancel()"
+  (closeEvent)="cancel()"
+></app-warning-modal>

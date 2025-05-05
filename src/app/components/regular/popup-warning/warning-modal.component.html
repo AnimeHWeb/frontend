@@ -1,0 +1,50 @@
+<div
+  class="modal-overlay"
+  [class.show]="isVisible"
+  (click)="closeOnBackdrop($event)"
+>
+  <div
+    class="modal-container"
+    [ngClass]="type"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="title"
+  >
+    <div class="modal-header">
+      <div class="icon-title">
+        <span class="modal-icon" [ngClass]="type">
+          <i class="material-icons" *ngIf="type === 'success'">✅</i>
+          <i class="material-icons" *ngIf="type === 'warning'">‼</i>
+          <i class="material-icons" *ngIf="type === 'error'">❌</i>
+          <i class="material-icons" *ngIf="type === 'info'">💦</i>
+        </span>
+        <h2 class="modal-title">{{ title }}</h2>
+      </div>
+      <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+    <div class="modal-content">
+      <div [innerHTML]="message"></div>
+    </div>
+    <div class="modal-footer">
+      <button
+        class="btn cancel-btn"
+        [class.loading]="isLoading"
+        *ngIf="cancelText"
+        (click)="onCancel()"
+      >
+        {{ cancelText }}
+      </button>
+      <button
+        class="btn confirm-btn"
+        [class.loading]="isLoading"
+        (click)="onConfirm()"
+        [disabled]="isLoading"
+      >
+        {{ confirmText }}
+        <span *ngIf="isLoading" class="loading-spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+.option-avatar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  box-shadow: 5px 5px 10px rgba(255, 255, 255, 0.3);
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: rgb(197, 197, 197);
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+
+    &:hover {
+      background: #ffffff;
+      translate: 0 -3px;
+    }
+
+    .icon {
+      width: 24px;
+      height: 24px;
+      svg {
+        max-width: 24px;
+        max-height: 24px;
+      }
+    }
+
+    .label {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+}

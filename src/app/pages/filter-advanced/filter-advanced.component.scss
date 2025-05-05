@@ -1,0 +1,196 @@
+.filter-advanced-container {
+  width: 100%;
+  background-color: #2c2c2c;
+  color: #fff;
+  min-height: calc(100vh - 61px);
+
+  .filter-input {
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+
+    h2 {
+      margin: 0 0 20px 0;
+      font-size: 28px;
+      border-bottom: 2px solid #444;
+      padding-bottom: 10px;
+    }
+
+    .row-filters {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    /* Các nhóm dropdown */
+    .group {
+      position: relative;
+      background-color: #3c3c3c;
+      padding: 8px;
+      border-radius: 6px;
+      overflow: hidden;
+      p {
+        margin: 0;
+        font-weight: bold;
+        font-size: 16px;
+        padding: 4px 12px;
+        background-color: #3c3c3c;
+        cursor: pointer;
+        position: relative;
+        // Tạo mũi tên chỉ dropdown:
+        &::after {
+          content: "▼";
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 12px;
+          transition: transform 0.3s;
+        }
+      }
+
+      &.open p::after {
+        transform: translateY(-50%) rotate(180deg);
+      }
+
+      .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        background-color: #5d5757;
+        border-radius: 8px;
+        max-height: 0px;
+        padding: 0 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        &.open {
+          margin-top: 8px;
+          padding: 8px;
+          max-height: 200px;
+          overflow: auto;
+        }
+      }
+
+      button {
+        padding: 8px 12px;
+        font-size: 14px;
+        background-color: #555;
+        border: none;
+        border-radius: 4px;
+        border: 1px white solid;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
+        &:hover {
+          background-color: #474747;
+        }
+
+        &.selected {
+          background-color: #d38900;
+          color: #000;
+        }
+      }
+    }
+
+    .btn-control {
+      display: flex;
+      width: 100%;
+      .btn-filter {
+        display: flex;
+        justify-content: center;
+        min-width: 120px;
+        margin: 0 auto 20px;
+        padding: 10px 0;
+        font-size: 16px;
+        background-color: #c7c7c7;
+        color: #000;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: #ffffff;
+          transform: translateY(-2px);
+        }
+      }
+    }
+
+    .result-container {
+      min-height: 70vh;
+      .loading {
+        text-align: center;
+        font-size: 18px;
+        margin: 20px 0;
+      }
+
+      .list-content {
+        .result-list {
+          list-style: none;
+          margin: 10px 0 0;
+          padding: 0;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 12px;
+
+          li {
+            .result-card {
+              height: 120px;
+              display: flex;
+              align-items: center;
+              gap: 16px;
+              background-color: #3c3c3c;
+              border-radius: 8px;
+              padding: 12px;
+              transition: background-color 0.3s;
+              cursor: pointer;
+
+              &:hover {
+                background-color: #4b4b4b;
+              }
+
+              .poster {
+                width: 80px;
+                height: 120px;
+                object-fit: cover;
+                border-radius: 4px;
+                flex-shrink: 0;
+              }
+
+              .info {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+
+                .title {
+                  font-size: 20px;
+                  margin: 0;
+                  font-weight: bold;
+                }
+
+                .info-details {
+                  display: flex;
+                  gap: 20px;
+                  font-size: 14px;
+                  color: #ddd;
+
+                  .episodes,
+                  .rating,
+                  .views {
+                    margin: 0;
+                    white-space: nowrap;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

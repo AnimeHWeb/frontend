@@ -1,0 +1,57 @@
+<div class="notification-container">
+  <!-- Nút bấm mở danh sách thông báo -->
+  <button (click)="toggleNotification()" class="notification-button">
+    <div class="notification-btn">
+      <div *ngIf="notices.length > 0" class="count-notice">
+        {{ totalElements }}
+      </div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="36"
+        height="36"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-bell"
+      >
+        <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+        <path
+          d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"
+        />
+      </svg>
+    </div>
+  </button>
+
+  <!-- Danh sách thông báo -->
+  <div
+    #notificationContainer
+    class="notification-list"
+    [class.visible]="isVisible"
+    (scroll)="onScroll($event)"
+  >
+    <div class="header">
+      <h2>Thông báo</h2>
+      <button (click)="markAllAsRead()">Đánh dấu tất cả đã đọc</button>
+    </div>
+
+    <div
+      *ngFor="let notice of formattedNotices; trackBy: trackByNoticeId"
+      class="notification-item"
+      [class.seen]="notice.isRead"
+      (click)="markAsRead(notice)"
+    >
+      <div class="head-title">
+        <h3>{{ notice.title }}</h3>
+        <span class="time">{{ notice.timeAgo }}</span>
+      </div>
+      <p>{{ notice.message }}</p>
+    </div>
+
+    <div class="no-notifications" *ngIf="formattedNotices.length === 0">
+      Không có thông báo
+    </div>
+  </div>
+</div>

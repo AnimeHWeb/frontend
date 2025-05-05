@@ -1,0 +1,104 @@
+<div
+  class="popup-overlay-edit-info-account"
+  (click)="closePopupOnOutside($event)"
+  [class.opened]="(openedForms$ | async)?.['modal-update-info-account']"
+>
+  <div
+    class="popup-edit-info-account"
+    [class.opened]="(openedForms$ | async)?.['modal-update-info-account']"
+    #popupContainer
+  >
+    <div class="top-form-edit-info-account">
+      <h2>Cập nhật thông tin tài khoản</h2>
+      <img src="assets/logo.png" alt="" class="logo-edit-info-account" />
+    </div>
+
+    <div class="input-area">
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Tên đầy đủ"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập tên của bạn..."
+          [value]="data.fullName"
+          (valueChange)="handleOnChangeFullName($event.toString())"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div *ngIf="!token" class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Tên hiển thị"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập tên hiển thị trên tài khoản của bạn..."
+          [value]="data.displayName"
+          (valueChange)="handleOnChangeDisplayName($event.toString())"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Bio"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập mô tả..."
+          [value]="data.bio"
+          (valueChange)="handleOnChangeBio($event.toString())"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Số điện thoại"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập số điện thoại..."
+          [value]="data.phoneNumber"
+          (valueChange)="handleOnChangePhoneNumber($event.toString())"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div class="form-group">
+        <app-dropdown-button
+          [title_label]="'Chọn giới tính'"
+          [label]="selectedOptions.label"
+          [options]="gender"
+          [variant]="'secondary'"
+          [size]="'medium'"
+          [customDropField]="'third-type'"
+          [disabled]="false"
+          [multiSelect]="false"
+          [isDisplayCheckbox]="false"
+          (onSelect)="handleSelect($event)"
+          [isDisplaySelectedOpptionLabels]="false"
+          [isButtonControl]="false"
+        >
+        </app-dropdown-button>
+      </div>
+    </div>
+
+    <div class="bottom-btn">
+      <app-interactive-button
+        buttonText="Huỷ"
+        (buttonClick)="closePopup()"
+      ></app-interactive-button>
+      <app-interactive-button
+        buttonText="Cập nhật"
+        [isLoading]="loading"
+        (buttonClick)="onFormSubmit()"
+      ></app-interactive-button>
+    </div>
+  </div>
+</div>

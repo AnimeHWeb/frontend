@@ -1,0 +1,68 @@
+.video-list-container {
+  .title-list-ontop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4e4c4c;
+    color: white;
+    padding: 12px 16px;
+
+    .title-head-content {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .show-more {
+      font-style: italic;
+      cursor: pointer;
+      transition: color 0.3s ease-in-out;
+
+      &:hover {
+        color: rgb(138, 153, 240);
+      }
+    }
+  }
+
+  .video-grid {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(136px, 1fr)
+    ); /* Tự động co giãn */
+    grid-auto-rows: minmax(
+      150px,
+      auto
+    ); /* Đảm bảo chiều cao của các items không bị co giãn quá mức */
+    transition: all 0.3s ease-in-out; /* Thêm hiệu ứng chuyển động mượt mà khi thay đổi cột */
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .video-grid {
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(160px, 1fr)
+      ); /* Khi màn hình thu nhỏ */
+    }
+  }
+
+  @media (max-width: 768px) {
+    .video-grid {
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(135px, 1fr)
+      ); /* Tối ưu hóa cho điện thoại và tablet */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .video-grid {
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(136px, 1fr)
+      ); /* Chế độ di động */
+    }
+  }
+}

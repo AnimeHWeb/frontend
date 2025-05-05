@@ -1,0 +1,72 @@
+<div class="add-series-form">
+  <h2 class="create-new-series-label">Tạo mới một Series</h2>
+  <div class="body-form">
+    <div class="input-series-container">
+      <input
+        type="text"
+        [(ngModel)]="newSeriesTitle"
+        placeholder="Tiêu đề series"
+      />
+      <textarea
+        [(ngModel)]="newSeriesDescription"
+        placeholder="Mô tả series"
+      ></textarea>
+
+      <div class="file-inputs">
+        <div class="group-input">
+          <label>Ảnh Banner:</label>
+          <input
+            type="file"
+            id="bannerUpload"
+            (change)="onFileSelected($event, 'banner')"
+          />
+          <label for="bannerUpload" class="file-label">
+            <span class="icon">📁</span> Chọn ảnh Banner*
+          </label>
+        </div>
+
+        <div class="group-input">
+          <label>Ảnh Poster:</label>
+          <input
+            type="file"
+            id="posterUpload"
+            (change)="onFileSelected($event, 'poster')"
+          />
+          <label for="posterUpload" class="file-label">
+            <span class="icon">📸</span> Chọn ảnh Poster*
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <div
+        class="image-preview-banner"
+        [ngStyle]="{
+          backgroundImage: bannerPreview ? 'url(' + bannerPreview + ')' : 'none'
+        }"
+      >
+        <div
+          class="image-preview-poster"
+          *ngIf="posterPreview; else defaultPoster"
+          [ngStyle]="{ backgroundImage: 'url(' + posterPreview + ')' }"
+        ></div>
+        <ng-template #defaultPoster>
+          <div class="image-preview-poster">Preview Poster</div>
+        </ng-template>
+        <div class="content-preview">
+          <h2>{{ newSeriesTitle }}</h2>
+          <p>{{ newSeriesDescription }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-control">
+    <button (click)="cancel()" [disabled]="isLoading">Hủy</button>
+    <button (click)="submit()" [disabled]="isLoading">
+      <span>Tạo Series</span>
+      <span *ngIf="isLoading" class="loader"></span>
+    </button>
+  </div>
+</div>

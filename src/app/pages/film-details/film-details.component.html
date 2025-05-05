@@ -1,0 +1,78 @@
+<div class="film-details-container" *ngIf="movie">
+  <div class="top-side">
+    <p>Thông tin chi tiết bộ phim</p>
+    <div
+      class="edit-btn"
+      *ngIf="
+        (role === 'ROLE_ADMIN' || role === 'ROLE_MODERATOR') &&
+        movie.status !== 'approved'
+      "
+      (click)="openFormUpdate()"
+    >
+      Sửa thông tin
+    </div>
+    <div
+      class="edit-btn"
+      *ngIf="role === 'ROLE_ADMIN' && movie.status === 'approved'"
+      (click)="revertAnime()"
+    >
+      Ngừng phát hành
+    </div>
+  </div>
+  <app-movie-info
+    [background]="movie.background"
+    [thumbnail]="movie.thumbnail"
+    [title]="movie.title"
+    [description]="movie.description"
+    [totalViews]="movie.totalView"
+    [latestEpisodes]="movie.newEpisodes"
+    [rating]="movie.rating"
+    [numberOfRating]="movie.numberOfRating"
+    [genres]="movie.genres"
+    [followers]="movie.followers"
+    [status]="movie.status"
+    [country]="movie.country"
+    [studio]="movie.studio"
+    [schedule]="movie.schedule"
+    [seasons]="series"
+    [follow]="movie.follow"
+    [id]="firstEpisodeId ?? ''"
+    [submittedByUsername]="movie.submittedBy"
+  ></app-movie-info>
+  <app-trailer-episodes
+    [videoTrailer]="movie.trailer"
+    [releaseDate]="movie.releaseDate"
+    [episodes]="movie.totalEpisodes"
+    [approved]="movie.status"
+    [submittedBy]="movie.submittedBy"
+  >
+  </app-trailer-episodes>
+
+  <app-film-approval
+    [animeId]="movieId"
+    *ngIf="role === 'ROLE_ADMIN' && movie.status === 'pending'"
+  >
+  </app-film-approval>
+
+  <app-comment-film [animeId]="movieId ?? ''"></app-comment-film>
+</div>
+
+<app-update-anime
+  [animeId]="movieId ?? ''"
+  [movieInfo]="movie"
+></app-update-anime>
+
+<app-create-episode-form
+  class="modal-create-episode-form"
+  (close)="closePopup()"
+  [animeId]="movieId"
+  [class.opened]="(isOpenForm$ | async)?.['create-episode']"
+>
+</app-create-episode-form>
+
+<div class="overlay-wrapper">
+  <app-loading-overlay
+    [visible]="isLoading"
+    message="Đang tải dữ liệu..."
+  ></app-loading-overlay>
+</div>

@@ -1,0 +1,30 @@
+<!-- Sidebar -->
+<nav
+  [ngClass]="{ sidebar: true, open: isOpen, close: !isOpen, mobile: isMobile }"
+>
+  <div class="list-options">
+    <div
+      class="sidebar-option"
+      *ngFor="let option of sidebarOptions"
+      [routerLink]="option.path"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLinkActive="active"
+      routerLinkActive="active"
+      (click)="onClose()"
+    >
+      <lucide-icon [name]="option.icon" class="menu-icon"></lucide-icon>
+      <span>{{ option.label }}</span>
+    </div>
+  </div>
+  <div class="menu-open-close">
+    <lucide-icon
+      [name]="isOpen ? icons.X : icons.Menu"
+      class="icon-menu-custom"
+      [class.mobile]="isMobile"
+      (click)="toggleMenu()"
+      (touchstart)="isMobile ? startDrag($event) : ''"
+      (touchmove)="isMobile ? drag($event) : ''"
+      (touchend)="isMobile ? endDrag() : ''"
+    ></lucide-icon>
+  </div>
+</nav>

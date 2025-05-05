@@ -1,0 +1,71 @@
+$primary-bg: #323232;
+$secondary-bg: #5d5757;
+$text-color: #ddd;
+$border-color: #ddd;
+$tag-hover-bg: #6f6666;
+
+.tag-list-container {
+  display: flex;
+  flex-direction: column;
+  background: $primary-bg;
+  padding: 12px;
+  gap: 10px;
+  border-radius: 10px;
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+
+  h2 {
+    color: $text-color;
+    margin-bottom: 20px;
+  }
+
+  .tag-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px; // Khoảng cách giữa các nhóm tag
+  }
+
+  .tag-group {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    .tag-type {
+      color: $text-color;
+      background: $secondary-bg;
+      padding: 8px;
+      border-radius: 5px;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .tags {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+      max-height: 300px;
+      overflow-x: hidden;
+
+      .tag-item {
+        background: $secondary-bg;
+        border: 1px solid $border-color;
+        border-radius: 5px;
+        padding: 8px;
+        text-align: center;
+        transition: background 0.3s ease;
+        font-size: 14px;
+        font-weight: bold;
+        color: $text-color;
+        cursor: pointer;
+
+        &:hover {
+          background: $tag-hover-bg;
+        }
+      }
+    }
+  }
+}

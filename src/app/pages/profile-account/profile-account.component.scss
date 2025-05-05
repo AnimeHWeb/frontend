@@ -1,0 +1,18 @@
+.profile-account-container {
+  .top-avatar {
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    background-color: #5d5757;
+    padding: 20px 30px;
+    font-size: 20px;
+    font-weight: 600;
+    align-items: center;
+    .btn-edit-info {
+      cursor: pointer;
+      &:hover {
+        scale: 1.05;
+      }
+    }
+  }
+}

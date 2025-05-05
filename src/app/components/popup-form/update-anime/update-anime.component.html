@@ -1,0 +1,173 @@
+<div
+  class="popup-overlay-edit-movie"
+  (click)="closePopupOnOutside($event)"
+  [class.opened]="(openedForms$ | async)?.['update-anime']"
+>
+  <div
+    class="popup-edit-movie"
+    [class.opened]="(openedForms$ | async)?.['update-anime']"
+    #popupContainer
+  >
+    <div class="top-form-edit-movie">
+      <h2>Cập nhật thông tin phim</h2>
+      <img src="assets/logo.png" alt="Logo" class="logo-edit-movie" />
+    </div>
+
+    <div class="input-area">
+      <!-- Các input text -->
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Title"
+          [variant]="'secondary'"
+          [isSvg]="false"
+          placeholder="Nhập tiêu đề phim..."
+          [value]="data.title"
+          (valueChange)="handleOnChangeTitle($event.toString())"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Description"
+          [variant]="'secondary'"
+          [isSvg]="false"
+          placeholder="Nhập mô tả phim..."
+          [value]="data.description"
+          (valueChange)="handleOnChangeDescription($event.toString())"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Trailer URL"
+          [variant]="'secondary'"
+          [isSvg]="false"
+          placeholder="Nhập đường dẫn trailer..."
+          [value]="data.trailer"
+          (valueChange)="handleOnChangeTrailer($event.toString())"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+        ></app-dynamic-input>
+      </div>
+
+      <!-- Các dropdown -->
+      <div class="form-group">
+        <app-dropdown-button
+          [title_label]="'Chọn studio'"
+          [label]="processTruncateString(selectedStudioLabel)"
+          [options]="tagStudiosFiltered"
+          [customDropField]="'second-type'"
+          [variant]="'secondary'"
+          [size]="'medium'"
+          [disabled]="false"
+          [multiSelect]="false"
+          [isDisplayCheckbox]="false"
+          (onSelect)="handleSelectStudio($event)"
+          [isDisplaySelectedOpptionLabels]="true"
+          [isButtonControl]="false"
+          [isSearchable]="true"
+          [minHeight]="true"
+        ></app-dropdown-button>
+      </div>
+
+      <div class="form-group">
+        <app-dropdown-button
+          [title_label]="'Chọn lịch chiếu'"
+          [label]="selectedScheduleLabel"
+          [options]="tagScheduleFiltered"
+          [customDropField]="'second-type'"
+          [variant]="'secondary'"
+          [size]="'medium'"
+          [disabled]="false"
+          [multiSelect]="false"
+          [isDisplayCheckbox]="false"
+          (onSelect)="handleSelectSchedule($event)"
+          [isDisplaySelectedOpptionLabels]="true"
+          [isButtonControl]="false"
+          [isSearchable]="true"
+          [minHeight]="true"
+        ></app-dropdown-button>
+      </div>
+
+      <div class="form-group">
+        <app-dropdown-button
+          [title_label]="'Chọn thể loại'"
+          [label]="processTruncateString(selectedGenreLabel)"
+          [options]="tagGenresFiltered"
+          [customDropField]="'second-type'"
+          [variant]="'secondary'"
+          [size]="'medium'"
+          [disabled]="false"
+          [multiSelect]="true"
+          [isDisplayCheckbox]="false"
+          (onSelect)="handleSelectGenre($event)"
+          [isDisplaySelectedOpptionLabels]="false"
+          [isButtonControl]="false"
+          [isSearchable]="true"
+          [minHeight]="true"
+        ></app-dropdown-button>
+      </div>
+
+      <div class="form-group">
+        <app-dropdown-button
+          [title_label]="'Chọn quốc gia'"
+          [label]="processTruncateString(selectedCountryLabel)"
+          [options]="tagNationalFiltered"
+          [customDropField]="'second-type'"
+          [variant]="'secondary'"
+          [size]="'medium'"
+          [disabled]="false"
+          [multiSelect]="false"
+          [isDisplayCheckbox]="false"
+          (onSelect)="handleSelectCountry($event)"
+          [isDisplaySelectedOpptionLabels]="false"
+          [isButtonControl]="false"
+          [isSearchable]="true"
+          [minHeight]="true"
+        ></app-dropdown-button>
+      </div>
+
+      <!-- Thêm 2 trường upload file cho Poster và Banner -->
+      <div class="input-file-container">
+        <label for="poster-file" class="file-label">Chọn poster file</label>
+        <div class="file-input-wrapper">
+          <input
+            type="file"
+            (change)="handlePosterFileUpload($event)"
+            accept="image/*"
+          />
+        </div>
+      </div>
+
+      <div class="input-file-container">
+        <label for="poster-file" class="file-label">Chọn banner file</label>
+        <div class="file-input-wrapper">
+          <input
+            type="file"
+            (change)="handleBannerFileUpload($event)"
+            accept="image/*"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-btn">
+      <app-interactive-button
+        buttonText="Huỷ"
+        (buttonClick)="closePopup()"
+      ></app-interactive-button>
+      <app-interactive-button
+        buttonText="Lưu"
+        [isLoading]="loading"
+        (buttonClick)="onFormSubmit()"
+      ></app-interactive-button>
+    </div>
+  </div>
+</div>

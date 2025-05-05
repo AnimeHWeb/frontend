@@ -1,0 +1,44 @@
+.main-side {
+  display: flex;
+  flex-direction: column; // Căn chỉnh các phần tử theo chiều dọc
+  height: 100vh; // Chiều cao của viewport
+  background-color: #3b3b3b;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+.header-top {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: #111010;
+}
+
+.body-site {
+  display: flex;
+  flex: 1; // Chiếm phần còn lại của không gian sau header-top
+  margin-top: 60px; // Khoảng cách từ dưới header-top
+  margin-left: 0px;
+  margin-right: 0px;
+
+  .menu {
+    position: fixed;
+    top: 60px; // Khoảng cách từ trên
+    left: 0;
+    width: 63px; // Mặc định, chiều rộng menu là 200px
+    height: 100%;
+    transition: width 0.3s ease; // Chuyển đổi mượt mà khi menu mở/đóng
+    z-index: 5;
+  }
+
+  .main-content {
+    margin-left: 200px; // Khoảng cách ban đầu để tránh menu che khuất nội dung
+    flex: 1; // Chiếm phần còn lại của không gian
+    overflow-y: auto;
+    transition: margin-left 0.3s ease; // Chuyển đổi mượt mà khi menu mở/đóng
+    background-color: #3b3b3b;
+    max-height: calc(100vh - 60px);
+    overflow-x: hidden;
+  }
+}

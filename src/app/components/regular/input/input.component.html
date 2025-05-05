@@ -1,0 +1,50 @@
+<div class="input-container" [class.error-state]="hasError">
+  <label
+    [for]="inputId"
+    class="input-label"
+    [class.primary]="variant === 'primary'"
+    [class.secondary]="variant === 'secondary'"
+    [class.outlined]="variant === 'other'"
+    *ngIf="label"
+  >
+    {{ label }}
+    <span class="required-marker" *ngIf="required">*</span>
+  </label>
+
+  <div
+    class="input-wrapper"
+    [class.primary]="variant === 'primary'"
+    [class.secondary]="variant === 'secondary'"
+    [class.outlined]="variant === 'other'"
+  >
+    <input
+      [id]="inputId"
+      [type]="type"
+      [ngModel]="value"
+      (ngModelChange)="onInputChange($event)"
+      [placeholder]="placeholder"
+      [required]="required"
+      [attr.min]="min"
+      [attr.max]="max"
+      [attr.minlength]="minLength"
+      [attr.maxlength]="maxLength"
+      (focus)="onFocusHandler()"
+      (blur)="onBlurHandler()"
+      [attr.aria-label]="label || placeholder"
+      [attr.aria-invalid]="hasError"
+      [attr.aria-describedby]="errorId"
+      class="dynamic-input"
+      (keydown)="onKeyDown($event)"
+    />
+    <!-- Nếu icon là SVG (URL), dùng <img> -->
+    <img *ngIf="icon && isSvg" [src]="icon" alt="icon" class="input-icon-svg" />
+
+    <!-- Nếu icon là FontAwesome hoặc Material Icons -->
+    <i *ngIf="icon && !isSvg" [class]="icon" class="input-icon"></i>
+  </div>
+
+  <div *ngIf="hasError" [id]="errorId" class="error-message" role="alert">
+    <span class="error-icon">!</span>
+    {{ errorMessage }}
+  </div>
+</div>

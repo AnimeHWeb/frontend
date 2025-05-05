@@ -1,0 +1,92 @@
+// Định nghĩa biến cho màu sắc
+$primary-color: #323232;
+$secondary-color: #5d5757;
+$accent-color: #e25d5d;
+
+.container {
+  font-family: Arial, sans-serif;
+  color: $primary-color;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  border-radius: 12px;
+  min-height: 150px;
+
+  // Áp dụng chung cho cả 2 section
+  .section-1,
+  .section-2 {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    // Style cho label
+    .label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: white;
+    }
+  }
+
+  textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid $secondary-color;
+    border-radius: 4px;
+    font-size: 14px;
+    color: $primary-color;
+    resize: vertical;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border: 1px white solid;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    &.not-approved {
+      background-color: $accent-color;
+    }
+
+    &.approved {
+      background-color: $secondary-color;
+    }
+
+    .spinner {
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top: 2px solid #ffffff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

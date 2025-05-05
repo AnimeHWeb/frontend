@@ -1,0 +1,14 @@
+<div class="upload-schedule-container">
+  <!-- Hiển thị danh sách theo từng danh mục -->
+  <section class="video-section">
+    <app-video-section
+      *ngFor="let category of videos"
+      [category]="category"
+    ></app-video-section>
+  </section>
+</div>
+
+<app-loading-overlay
+  [visible]="isLoading"
+  message="Đang tải dữ liệu..."
+></app-loading-overlay>

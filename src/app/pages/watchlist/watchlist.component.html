@@ -1,0 +1,121 @@
+<div class="watchlist-container">
+  <div
+    class="list-container"
+    *ngIf="(isAuth$ | async) && token && watchlistData.length !== 0"
+  >
+    <div class="watchlist-list">
+      <h2>Danh sách Anime trong Watchlist</h2>
+      <div class="watchlist-item" *ngFor="let item of watchlistData">
+        <div class="info-container" (click)="onClickMovie(item.anime.id)">
+          <img
+            class="poster"
+            [src]="buildImgThumbnailUrl(item.anime.posterUrl, 'tiny')"
+            alt="poster"
+          />
+          <div class="info">
+            <h3>{{ item.anime.title }}</h3>
+            <p>Đánh giá: {{ item.anime.averageRating }}/10⭐</p>
+            <p>Lượt xem: {{ item.anime.viewCount ?? 0 | formatView }}</p>
+            <p>Ngày thêm: {{ item.dateAdded | date : "dd-MM-yyyy" }}</p>
+          </div>
+        </div>
+
+        <div
+          class="delete-btn"
+          (click)="removeItem(item.anime.id)"
+          title="Xoá khỏi watchlist"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-bookmark-x"
+          >
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z" />
+            <path d="m14.5 7.5-5 5" />
+            <path d="m9.5 7.5 5 5" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <app-pagination
+      [totalData]="totalItems"
+      [amountDataPerPage]="size"
+      [currentPageIndex]="page"
+      (onPageChange)="onPageChange($event)"
+    ></app-pagination>
+  </div>
+
+  <div
+    class="list-container"
+    *ngIf="notYetSync && localWatchlistData.length !== 0"
+  >
+    <div class="watchlist-list">
+      <h2>Danh sách Anime đã lưu chưa đồng bộ</h2>
+      <div class="watchlist-item" *ngFor="let item of localWatchlistData">
+        <div class="info-container" (click)="onClickMovie(item.anime.id)">
+          <img
+            class="poster"
+            [src]="buildImgThumbnailUrl(item.anime.posterUrl, 'tiny')"
+            alt="poster"
+          />
+          <div class="info">
+            <h3>{{ item.anime.title }}</h3>
+            <p>Đánh giá: {{ item.anime.averageRating }}/10⭐</p>
+            <p>Lượt xem: {{ item.anime.viewCount ?? 0 | formatView }}</p>
+            <p>Ngày thêm: {{ item.dateAdded | date : "dd-MM-yyyy" }}</p>
+          </div>
+        </div>
+
+        <div
+          class="delete-btn"
+          (click)="removeItemLocal(item.anime.id)"
+          title="Xoá khỏi watchlist"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-bookmark-x"
+          >
+            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z" />
+            <path d="m14.5 7.5-5 5" />
+            <path d="m9.5 7.5 5 5" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <app-pagination
+      [totalData]="totalItemsLocal"
+      [amountDataPerPage]="sizeLocal"
+      [currentPageIndex]="pageLocal"
+      (onPageChange)="onLocalPageChange($event)"
+    ></app-pagination>
+  </div>
+
+  <div
+    class="list-container not-found"
+    *ngIf="localWatchlistData.length === 0 && watchlistData.length === 0"
+  >
+    <span class="typing">Chưa lưu bộ phim nào...</span>
+  </div>
+</div>
+
+<app-loading-overlay
+  [visible]="isLoading"
+  message="Đang tải dữ liệu..."
+></app-loading-overlay>

@@ -1,0 +1,176 @@
+$primary-bg: #323232;
+$secondary-bg: #5d5757;
+$text-color: #ddd;
+$border-color: #ddd;
+$button-hover-bg: #6f6666;
+$input-focus-border: #8a7f7f;
+$input-focus-bg: #4a4646;
+$primary-color: #5d5757;
+$cancel-color: #be4949;
+$cancel-hover: #a44a4a;
+
+.tag-container {
+  background: $primary-bg;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  margin-bottom: 12px;
+  border: #ddd 1px solid;
+  h2 {
+    color: $text-color;
+    margin-bottom: 20px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+
+    label {
+      color: $text-color;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input,
+    textarea {
+      background: transparent;
+      border: 1px solid $border-color;
+      color: $text-color;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 16px;
+      outline: none;
+      transition: border 0.3s ease, background 0.3s ease;
+
+      &:focus {
+        border-color: $input-focus-border;
+        background: $input-focus-bg;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+  }
+
+  /* Custom Select */
+  .custom-select {
+    .select-wrapper {
+      position: relative;
+      background: transparent;
+      border: 1px solid $border-color;
+      color: $text-color;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: border 0.3s ease, background 0.3s ease;
+
+      &:hover {
+        border-color: $input-focus-border;
+      }
+
+      .selected-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .dropdown-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #5d5757;
+        border: 1px solid $border-color;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        overflow-x: hidden;
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out,
+          visibility 0.3s ease-out;
+
+        &.open {
+          max-height: 200px;
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .options {
+          padding: 10px;
+          color: $text-color;
+          cursor: pointer;
+          transition: background 0.2s ease;
+
+          &:hover {
+            background: $input-focus-border;
+          }
+
+          &.active {
+            font-weight: bold;
+            background: #323232;
+          }
+        }
+      }
+    }
+  }
+
+  /* Button Group */
+  .button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+
+    button {
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s ease;
+    }
+
+    button[type="submit"] {
+      background: $primary-color;
+      color: $text-color;
+
+      &:hover {
+        background: $button-hover-bg;
+      }
+
+      &:disabled {
+        background: gray;
+        cursor: not-allowed;
+      }
+    }
+
+    .cancel-btn {
+      background: $cancel-color;
+      color: white;
+
+      &:hover {
+        background: $cancel-hover;
+      }
+    }
+  }
+
+  .message {
+    color: #b3b3b3;
+    font-style: italic;
+    font-size: 14px;
+  }
+}

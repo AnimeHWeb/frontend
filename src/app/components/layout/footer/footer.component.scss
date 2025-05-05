@@ -1,0 +1,160 @@
+$primary-color: #646464;
+$secondary-color: #323232;
+$text-color: white;
+.footer-home {
+  display: flex;
+  flex-direction: column;
+
+  .top-title-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 24px;
+    background-color: $primary-color;
+    color: $text-color;
+
+    .more-info-text {
+      font-size: 20px;
+    }
+
+    .contact-us {
+      font-size: 24px;
+      text-decoration: underline;
+    }
+
+    .relax-text {
+      min-width: 200px;
+      font-size: 24px;
+      color: $text-color;
+    }
+  }
+
+  .footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    background-color: $secondary-color;
+    padding: 20px;
+    gap: 20px;
+
+    .logo-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 350px;
+      .logo-img-footer {
+        width: 200px;
+        height: auto;
+      }
+    }
+    .location-contact,
+    .social-media,
+    .donate-gate {
+      flex: 1;
+      min-width: 200px;
+      color: $text-color;
+
+      h1 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+
+      .email-field {
+        text-decoration: underline;
+      }
+      .rule-link {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+
+    .icon-media {
+      display: flex;
+      gap: 12px;
+
+      .icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid $text-color;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 12px;
+        &:hover {
+          background-color: rgb(149, 149, 149);
+        }
+      }
+    }
+
+    .payment-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .qr-code img {
+        width: 90px;
+        height: 90px;
+      }
+
+      .info-bank {
+        p {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+/* Responsive tối ưu */
+@media (max-width: 1380px) {
+  .footer-home {
+    .footer-content {
+      .logo-footer {
+        display: none;
+      }
+    }
+  }
+}
+@media (max-width: 1024px) {
+  .relax-text {
+    display: none;
+  }
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .icon-media {
+      justify-content: center;
+    }
+
+    .payment-info {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .top-title-footer {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px 0;
+
+    .contact-us {
+      font-size: 20px;
+    }
+  }
+
+  .footer-content {
+    padding: 15px;
+  }
+}

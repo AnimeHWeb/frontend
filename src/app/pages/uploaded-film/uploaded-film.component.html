@@ -1,0 +1,57 @@
+<div class="uploaded-film-container">
+  <div class="head-title-uploaded-film">
+    <div class="label-uploaded-film">Danh sách phim đã đăng</div>
+    <div class="btn-addnew-film" (click)="toggleDropdown($event)">+</div>
+    <div class="dropdown-menu" [class.opened]="isDropdownOpen">
+      <div class="dropdown-item" (click)="addNewSeries()">
+        Thêm mới Series phim
+      </div>
+      <div class="dropdown-item" (click)="addNewAnimePending()">
+        Thêm mới phim
+      </div>
+      <div
+        *ngIf="role === 'ROLE_ADMIN'"
+        class="dropdown-item"
+        (click)="createTag()"
+      >
+        Thêm mới tag phim
+      </div>
+    </div>
+  </div>
+
+  <div class="create-form-container">
+    <div class="add-series-container" *ngIf="isAddingSeries" @expandCollapse>
+      <app-add-series (closeForm)="cancelSeries()"></app-add-series>
+    </div>
+
+    <div
+      class="add-create-anime-pending-container"
+      *ngIf="isCreateAnimePending"
+      @expandCollapseAnime
+    >
+      <app-create-anime-pending
+        (closeForm)="cancelAnime()"
+      ></app-create-anime-pending>
+    </div>
+    <div
+      class="create-tag-container"
+      *ngIf="isCreateTag"
+      @expandCollapseCreateTag
+    >
+      <app-create-tag (cancel)="cancelCreateTag()"></app-create-tag>
+      <app-tag-list></app-tag-list>
+    </div>
+  </div>
+
+  <!-- Hiển thị danh sách theo từng danh mục -->
+  <div class="video-section">
+    <app-video-section
+      *ngFor="let category of videos"
+      [category]="category"
+    ></app-video-section>
+  </div>
+</div>
+<app-loading-overlay
+  [visible]="isLoading"
+  message="Đang tải dữ liệu..."
+></app-loading-overlay>

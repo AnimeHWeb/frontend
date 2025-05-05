@@ -1,0 +1,23 @@
+<div *ngIf="category" class="video-list-container">
+  <div class="title-list-ontop">
+    <div class="title-head-content">{{ category.category }}</div>
+    <div
+      class="show-more"
+      (click)="
+        onClickShowMore(
+          category.category,
+          category.query ?? {},
+          category.useApi
+        )
+      "
+    >
+      Xem thêm
+    </div>
+  </div>
+  <div class="video-grid">
+    <app-movie-card
+      *ngFor="let video of category.videos"
+      [video]="video"
+    ></app-movie-card>
+  </div>
+</div>

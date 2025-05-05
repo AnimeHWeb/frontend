@@ -1,0 +1,41 @@
+<div class="tag-container">
+  <h2>Tạo Tag Mới</h2>
+
+  <form [formGroup]="tagForm" (ngSubmit)="createTag()">
+    <div class="form-group">
+      <label>Tên Tag</label>
+      <input formControlName="name" placeholder="Nhập tên tag..." />
+    </div>
+
+    <div class="form-group custom-select">
+      <label>Loại Tag</label>
+      <div class="select-wrapper" (click)="toggleDropdown()">
+        <div class="selected-option">{{ selectedTag || "Chọn loại tag" }}</div>
+        <div class="dropdown-options" [class.open]="isDropdownOpen">
+          <div
+            *ngFor="let type of tagTypes"
+            (click)="selectOption(type, $event)"
+            [class.active]="type === selectedTag"
+            class="options"
+          >
+            {{ type }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Mô tả</label>
+      <textarea formControlName="description" placeholder="Mô tả..."></textarea>
+    </div>
+
+    <div class="button-group">
+      <button type="button" class="cancel-btn" (click)="onCancel()">Huỷ</button>
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? "Đang tạo..." : "Tạo mới" }}
+      </button>
+    </div>
+
+    <p class="message">{{ message }}</p>
+  </form>
+</div>

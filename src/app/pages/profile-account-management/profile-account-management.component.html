@@ -1,0 +1,38 @@
+<div class="profile-account-management-container">
+  <div class="top-avatar">
+    <div class="top-title-avatar">Thông tin tài khoản người dùng</div>
+    <div
+      *ngIf="userInfo.role !== 'ROLE_ADMIN'"
+      class="btn-edit-info"
+      [title]="'Khoá tài khoản này'"
+      (click)="handleLockAccount()"
+    >
+      Khoá tài khoản
+    </div>
+  </div>
+  <!-- Pass the updated accountId to the child component -->
+  <app-user-profile
+    [accountId]="accountId"
+    [infoUserAccount]="true"
+    (userInfoUpdated)="handleUserInfoUpdated($event)"
+  ></app-user-profile>
+
+  <app-moderator-approval
+    [requestId]="requestId"
+    *ngIf="role === 'ROLE_ADMIN' && requestId"
+  >
+  </app-moderator-approval>
+</div>
+
+<!-- yêu cầu đăng nhập lại -->
+<app-warning-modal
+  *ngIf="(isOpenForm$ | async)?.['lock-account'] && role === 'ROLE_ADMIN'"
+  title="Cảnh báo!"
+  message="Bạn có chắc chắn muốn khoá tài khoản này?"
+  type="warning"
+  confirmText="Xác nhận"
+  [isLoading]="isloading"
+  (confirm)="lockAccount(accountId)"
+  (cancel)="closePopup()"
+  (closeEvent)="closePopup()"
+></app-warning-modal>

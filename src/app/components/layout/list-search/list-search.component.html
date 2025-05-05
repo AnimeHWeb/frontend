@@ -1,0 +1,25 @@
+<div
+  #listContainer
+  class="card-list"
+  [class.visible]="isVisible"
+  (scroll)="onScroll($event)"
+  style="max-height: 400px; overflow-y: auto"
+>
+  <div class="container-search-list">
+    <app-display-card
+      *ngFor="let card of filteredList; let i = index"
+      [imageUrl]="card.imageUrl"
+      [title]="card.title"
+      [fields]="card.fields"
+      [animeId]="card.animeId"
+      [maxWidth]="'400px'"
+      (cardClick)="handleCardClick(i)"
+      [variant]="'primary'"
+    ></app-display-card>
+  </div>
+  <div class="loading" *ngIf="isLoading">Loading...</div>
+
+  <div class="no-item-found" *ngIf="filteredList.length === 0 && !isLoading">
+    Không tìm thấy phim cần tìm
+  </div>
+</div>

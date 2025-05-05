@@ -1,0 +1,89 @@
+<div
+  class="popup-overlay-login"
+  (click)="closePopupOnOutside($event)"
+  [class.opened]="(openedForms$ | async)?.['login']"
+>
+  <div
+    class="popup-login"
+    [class.opened]="(openedForms$ | async)?.['login']"
+    #popupContainer
+  >
+    <div class="top-form-login">
+      <h2>Đăng nhập</h2>
+
+      <img src="assets/logo.png" alt="" class="logo-login" />
+    </div>
+
+    <div class="input-area">
+      <!-- Tên tài khoản hoặc email -->
+      <div class="form-group">
+        <app-dynamic-input
+          type="text"
+          label="Tài khoản"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập tên tài khoản hoặc Email"
+          [value]="data.username"
+          (valueChange)="handleOnChangeUserName($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+          (enterPress)="onFormSubmit()"
+        ></app-dynamic-input>
+      </div>
+
+      <!-- Mật khẩu -->
+      <div class="form-group">
+        <app-dynamic-input
+          type="password"
+          label="Nhập mật khẩu"
+          [variant]="'secondary'"
+          [isSvg]="true"
+          placeholder="Nhập mật khẩu..."
+          [value]="data.password"
+          (valueChange)="handleOnChangePassWord($event.toString())"
+          [required]="true"
+          [shouldValidate]="shouldValidate"
+          (validationResult)="handleValidationResult($event)"
+          (enterPress)="onFormSubmit()"
+        ></app-dynamic-input>
+      </div>
+    </div>
+
+    <!-- Chưa có tài khoản -->
+    <div class="register">
+      <p>
+        Chưa có tài khoản?
+        <a href="#" (click)="handleOpenRegisterForm()">Đăng ký</a>
+      </p>
+    </div>
+
+    <div class="bottom-btn">
+      <div class="forgot-password" (click)="handleForgotPassword()">
+        Quên mật khẩu?
+      </div>
+      <!-- Nút hành động -->
+      <div class="form-actions">
+        <app-interactive-button
+          [buttonText]="'Huỷ'"
+          [buttonType]="'primary'"
+          [buttonSize]="'small'"
+          [isDisabled]="false"
+          [iconName]=""
+          [tooltipText]="'Nhấn để xác nhận'"
+          (buttonClick)="closePopup()"
+        ></app-interactive-button>
+        <app-interactive-button
+          [buttonText]="'Đăng nhập'"
+          [buttonType]="'primary'"
+          [buttonSize]="'small'"
+          [isDisabled]="false"
+          [isLoading]="loading"
+          [iconName]=""
+          [tooltipText]="'Nhấn để xác nhận'"
+          (buttonClick)="onFormSubmit()"
+        ></app-interactive-button>
+      </div>
+    </div>
+  </div>
+</div>

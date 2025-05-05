@@ -1,0 +1,47 @@
+.category-detail-container {
+  color: white;
+  min-height: calc(100vh - 61px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  .list-thumbnails {
+    width: 100%;
+    .category-title {
+      width: 99%;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-block-start: 0;
+      background-color: rgb(105, 105, 105);
+      padding: 8px;
+    }
+
+    .video-grid {
+      display: grid;
+      gap: 10px;
+      padding: 10px;
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(136px, 1fr)
+      ); /* Tự động co giãn */
+      grid-auto-rows: minmax(
+        150px,
+        auto
+      ); /* Đảm bảo chiều cao của các items không bị co giãn quá mức */
+      transition: all 0.3s ease-in-out; /* Thêm hiệu ứng chuyển động mượt mà khi thay đổi cột */
+    }
+    .not-found {
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      font-size: 24px;
+    }
+  }
+  app-pagination {
+    width: 99.4%;
+  }
+}

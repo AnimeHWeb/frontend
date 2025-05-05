@@ -1,0 +1,4194 @@
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-footer',
+  imports: [],
+  templateUrl: './footer.component.html',
+  styleUrl: './footer.component.scss',
+})
+export class FooterComponent {}
+
+
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
+import { DropdownButtonComponent } from '../../regular/dropdown/dropdown.component';
+import { DynamicInputComponent } from '../../regular/input/input.component';
+import { LucideAngularModule, Bell } from 'lucide-angular';
+import { MoviesService } from '../../../services/api-service/movies.service';
+import { INotice, IOptionItem, ITagFilm } from '../../../models/InterfaceData';
+import { ListCardComponent } from '../list-search/list-search.component';
+import { NotificationListComponent } from '../list-notifications/list-notifications.component';
+import { ListOptionAvatarComponent } from '../list-option-avatar/list-option-avatar.component';
+import { dataAvatarOptions } from '../../../models/DataRoot';
+import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import { Observable } from 'rxjs';
+import { selectBooleanState } from '../../../store/rerender/ui.selectors';
+import { Store } from '@ngrx/store';
+import { NoticeService } from '../../../services/api-service/notice.service';
+import {
+  selectAuthState,
+  selectIsAuthenticated,
+} from '../../../store/auth/auth.selectors';
+
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [
+    CommonModule,
+    DropdownButtonComponent,
+    DynamicInputComponent,
+    LucideAngularModule,
+    ListCardComponent,
+    NotificationListComponent,
+    ListOptionAvatarComponent,
+  ],
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
+})
+export class HeaderComponent implements OnInit {
+  optionItemsAvatar: IOptionItem[] = [];
+  isReloadOptionMenu$: Observable<boolean>;
+  isAuthenticated$: Observable<boolean> | undefined;
+
+  private role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_MODERATOR' =
+    'ROLE_GUEST';
+
+  icons = { Bell };
+  tags: ITagFilm[] = [];
+  notices: INotice[] = [];
+  activeDropdownId: string | null = null;
+  selectedOptions: { [key: string]: any } = {};
+  searchText: string | number = '';
+  isListSearchVisible = false;
+  isAvatarOptions = false;
+
+  constructor(
+    private moviesService: MoviesService,
+    private noticeService: NoticeService,
+    private eRef: ElementRef,
+    private router: Router,
+    private cookieService: CookieService,
+    private store: Store
+  ) {
+    this.isReloadOptionMenu$ = this.store.select(
+      selectBooleanState('isReloadOptionMenu')
+    );
+  }
+
+  ngOnInit(): void {
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+
+    this.setUserRole();
+    this.filterAvatarOptions();
+    this.loadData();
+  }
+
+  private setUserRole(): void {
+    const storedRole = this.cookieService.get('role') as
+      | 'ROLE_GUEST'
+      | 'ROLE_USER'
+      | 'ROLE_MODERATOR'
+      | 'ROLE_ADMIN';
+    if (storedRole && this.isAuthenticated$) {
+      this.role = storedRole;
+    }
+  }
+
+  private filterAvatarOptions(): void {
+    this.optionItemsAvatar = dataAvatarOptions.filter(
+      (option) => option.role[this.role] === true
+    );
+  }
+
+  private loadData(): void {
+    this.moviesService.getTagFilm().subscribe((response) => {
+      this.tags = response.result;
+    });
+
+    this.noticeService.getNotices().subscribe((response) => {
+      this.notices = response.result;
+    });
+  }
+
+  toggleDropdown(id: string): void {
+    this.activeDropdownId = this.activeDropdownId === id ? null : id;
+  }
+
+  handleSelect(dropdownKey: string, selected: any): void {
+    this.selectedOptions[dropdownKey] = selected;
+  }
+
+  handleInputChange(value: string | number): void {
+    this.searchText = value;
+    this.isListSearchVisible = !!value;
+  }
+
+  toggleOpenAvatarList(event: Event): void {
+    event.stopPropagation();
+    this.isAvatarOptions = !this.isAvatarOptions;
+  }
+
+  get unseenNoticesCount(): number {
+    return this.notices.filter((notice) => !notice.seen).length;
+  }
+
+  onOptionClick(option: IOptionItem): void {
+    this.isAvatarOptions = false;
+  }
+
+  onClickLogo(): void {
+    this.router.navigate(['/']);
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: Event): void {
+    const avatarControl =
+      this.eRef.nativeElement.querySelector('.avatar-control');
+    if (avatarControl && !avatarControl.contains(event.target)) {
+      this.isAvatarOptions = false;
+    }
+  }
+}
+
+import {
+    Component,
+    Input,
+    OnInit,
+    OnChanges,
+    SimpleChanges,
+    ElementRef,
+    HostListener,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  import { INotice } from '../../../models/InterfaceData';
+  import { parse, formatDistanceToNow } from 'date-fns';
+  import { vi } from 'date-fns/locale';
+  
+  interface FormattedNotice extends INotice {
+    timeAgo: string;
+  }
+  
+  @Component({
+    selector: 'app-notification-list',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './list-notifications.component.html',
+    styleUrls: ['./list-notifications.component.scss'],
+  })
+  export class NotificationListComponent implements OnInit, OnChanges {
+    @Input() notices: INotice[] = [];
+    isVisible: boolean = false;
+    formattedNotices: FormattedNotice[] = [];
+  
+    constructor(private eRef: ElementRef) {}
+  
+    ngOnInit(): void {
+      this.updateFormattedNotices();
+    }
+  
+    ngOnChanges(changes: SimpleChanges): void {
+      if (changes['notices']) {
+        this.updateFormattedNotices();
+      }
+    }
+  
+    updateFormattedNotices(): void {
+      this.formattedNotices = this.notices.map((notice) => ({
+        ...notice,
+        timeAgo: this.calculateTimeAgo(notice.time),
+      }));
+    }
+  
+    toggleNotification(): void {
+      this.isVisible = !this.isVisible;
+    }
+  
+    markAsRead(notice: FormattedNotice): void {
+      notice.seen = true;
+      this.updateFormattedNotices();
+    }
+  
+    markAllAsRead(): void {
+      this.notices.forEach((notice) => (notice.seen = true));
+      this.updateFormattedNotices();
+    }
+  
+    @HostListener('document:click', ['$event'])
+    clickOutside(event: Event) {
+      if (!this.eRef.nativeElement.contains(event.target)) {
+        this.isVisible = false;
+      }
+    }
+  
+    get unseenNoticesCount(): number {
+      return this.notices.filter((notice) => !notice.seen).length;
+    }
+  
+    calculateTimeAgo(time: string): string {
+      try {
+        const date = parse(time, 'dd-MM-yyyy HH:mm:ss', new Date());
+        return formatDistanceToNow(date, { addSuffix: true, locale: vi });
+      } catch (error) {
+        console.error('Lỗi khi xử lý thời gian:', error);
+        return 'Không xác định';
+      }
+    }
+  
+    trackByNoticeId(index: number, notice: FormattedNotice): number {
+      return notice.id;
+    }
+  }
+  import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IOptionItem } from '../../../models/InterfaceData';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { selectOpenedForms } from '../../../store/open-form-state/form.selectors';
+import { openForm } from '../../../store/open-form-state/form.actions';
+import { selectIsAuthenticated } from '../../../store/auth/auth.selectors';
+import { selectBooleanState } from '../../../store/rerender/ui.selectors';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-list-option-avatar',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './list-option-avatar.component.html',
+  styleUrl: './list-option-avatar.component.scss',
+})
+export class ListOptionAvatarComponent {
+  isOpenLogin$: Observable<{ [key: string]: boolean }>;
+  isAuthenticated$: Observable<boolean>;
+  isReloadOptionMenu$: Observable<boolean>;
+  constructor(
+    private sanitizer: DomSanitizer,
+    private store: Store,
+    private router: Router
+  ) {
+    this.isOpenLogin$ = this.store.select(selectOpenedForms);
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+    this.isReloadOptionMenu$ = this.store.select(
+      selectBooleanState('isReloadOptionMenu')
+    );
+  }
+
+  @Input() options: IOptionItem[] = [];
+  @Output() optionSelected = new EventEmitter<IOptionItem>();
+  @Output() showLoginForm = new EventEmitter<void>(); // Thêm sự kiện để hiển thị form
+  @Output() showRegisterForm = new EventEmitter<void>(); // Thêm sự kiện để hiển thị form
+  @Output() showRegisterModeratorForm = new EventEmitter<void>();
+
+  selectOption(option: IOptionItem): void {
+    if (option.id === 1) {
+      this.showLoginForm.emit(); // Kích hoạt sự kiện hiển thị form khi id = 1
+      this.store.dispatch(openForm({ formType: 'login' }));
+    }
+    if (option.id === 2) {
+      this.showRegisterForm.emit();
+      this.store.dispatch(openForm({ formType: 'register' }));
+    }
+    if (option.id === 3) {
+      this.showRegisterModeratorForm.emit();
+      this.store.dispatch(openForm({ formType: 'reg-moderator' }));
+    }
+    if (option.id === 4) {
+      this.showRegisterForm.emit();
+      this.store.dispatch(openForm({ formType: 'modal-warning' }));
+    }
+    if (option.id === 5) {
+      this.router.navigate(['/profile']);
+    }
+    // this.optionSelected.emit(option);
+  }
+
+  trackById(index: number, option: IOptionItem): number | string {
+    return option.id;
+  }
+
+  sanitizeIcon(icon: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(icon);
+  }
+}
+import {
+    Component,
+    Input,
+    OnChanges,
+    SimpleChanges,
+    ElementRef,
+    HostListener,
+    ViewChild,
+    OnDestroy,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  import { DisplayCardComponent } from '../../regular/display-card/display-card.component';
+  import { MoviesService } from '../../../services/api-service/movies.service';
+  import { Subscription } from 'rxjs';
+  
+  interface Field {
+    label: string;
+    value: string;
+  }
+  
+  interface CardItem {
+    imageUrl: string;
+    title: string;
+    fields: Field[];
+  }
+  
+  @Component({
+    selector: 'app-list-search',
+    standalone: true,
+    imports: [CommonModule, DisplayCardComponent],
+    templateUrl: './list-search.component.html',
+    styleUrls: ['./list-search.component.scss'],
+  })
+  export class ListCardComponent implements OnChanges, OnDestroy {
+    @Input() searchText: string = ''; // Theo dõi trực tiếp
+    @Input() isVisible: boolean = false;
+    @ViewChild('listContainer') listContainer!: ElementRef;
+  
+    cardList: CardItem[] = [];
+    filteredList: CardItem[] = [];
+    isLoading = false;
+  
+    private searchTimeout: any; // Lưu timeout để debounce
+    private apiSubscription?: Subscription; // Quản lý Subscription của API call
+  
+    constructor(private eRef: ElementRef, private moviesService: MoviesService) {}
+  
+    ngOnChanges(changes: SimpleChanges): void {
+      if (changes['searchText']) {
+        this.handleSearch();
+      }
+    }
+  
+    handleSearch(): void {
+      const text = this.searchText.trim();
+  
+      // Hủy bỏ API trước đó nếu chưa hoàn thành
+      if (this.apiSubscription) {
+        this.apiSubscription.unsubscribe();
+      }
+  
+      // Xóa timeout cũ nếu có
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+  
+      if (!text) {
+        this.filteredList = [];
+        this.isVisible = false;
+        return;
+      }
+  
+      // Đặt timeout để debounce API call
+      this.isLoading = true;
+      this.searchTimeout = setTimeout(() => {
+        this.apiSubscription = this.moviesService
+          .postMovieItemSearch(text)
+          .subscribe({
+            next: (response) => {
+              this.cardList = response.result || [];
+              this.filterCards();
+              this.isLoading = false;
+            },
+            error: (error) => {
+              console.error('Lỗi khi tìm kiếm phim:', error);
+              this.filteredList = [];
+              this.isLoading = false;
+            },
+          });
+      }, 500); // Chỉ gọi API sau 500ms nếu không có thay đổi
+    }
+  
+    ngOnDestroy(): void {
+      if (this.apiSubscription) {
+        this.apiSubscription.unsubscribe();
+      }
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+    }
+  
+    handleCardClick(index: number): void {
+      console.log(`🎬 Card ${index} được nhấn!`);
+    }
+  
+    filterCards(): void {
+      const search = this.searchText.toLowerCase();
+      this.filteredList = this.cardList.filter((card) =>
+        card.title.toLowerCase().includes(search)
+      );
+    }
+  
+    @HostListener('document:click', ['$event'])
+    clickOutside(event: Event): void {
+      if (
+        this.listContainer &&
+        !this.listContainer.nativeElement.contains(event.target)
+      ) {
+        this.isVisible = false;
+      }
+    }
+  }
+  import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { selectIsAuthenticated } from '../../../store/auth/auth.selectors';
+import { login, logout } from '../../../store/auth/auth.actions';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import {
+  LucideAngularModule,
+  Menu,
+  Home,
+  Film,
+  History,
+  Filter,
+  Save,
+  X,
+} from 'lucide-angular';
+import { selectBooleanState } from '../../../store/rerender/ui.selectors';
+import { sidebarOptionsData } from '../../../models/DataRoot';
+import { CookieService } from 'ngx-cookie-service';
+
+@Component({
+  selector: 'app-sidebar',
+  standalone: true,
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.scss'],
+  imports: [CommonModule, RouterModule, LucideAngularModule],
+})
+export class SidebarComponent implements OnInit {
+  isReloadOptionSidebar$: Observable<boolean>;
+  isAuthenticated$!: Observable<boolean>;
+  private role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_MODERATOR' | 'ROLE_ADMIN' =
+    'ROLE_GUEST';
+  icons = { Menu, X, Home, Film, History, Filter };
+  sidebarOptions = sidebarOptionsData;
+  isOpen = true;
+
+  @Output() menuToggled = new EventEmitter<boolean>();
+
+  constructor(private store: Store, private cookieService: CookieService) {
+    this.isReloadOptionSidebar$ = this.store.select(
+      selectBooleanState('isReloadOptionSidebar')
+    );
+  }
+
+  toggleMenu() {
+    this.isOpen = !this.isOpen;
+    this.menuToggled.emit(this.isOpen); // Gửi trạng thái mới lên component cha
+  }
+
+  ngOnInit(): void {
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+    this.setUserRole(); // Lấy role từ cookie
+    this.filterSidebarOptions(); // Lọc danh sách option dựa trên role
+  }
+
+  private setUserRole(): void {
+    const storedRole = this.cookieService.get('role') as
+      | 'ROLE_GUEST'
+      | 'ROLE_USER'
+      | 'ROLE_MODERATOR'
+      | 'ROLE_ADMIN';
+
+    if (storedRole) {
+      this.role = storedRole;
+    }
+  }
+
+  // Lọc danh sách option dựa vào quyền hạn của user
+  private filterSidebarOptions(): void {
+    this.sidebarOptions = sidebarOptionsData.filter(
+      (option) => option.role[this.role] === true
+    );
+  }
+
+  login() {
+    this.store.dispatch(login());
+  }
+
+  logout() {
+    this.store.dispatch(logout());
+  }
+}
+import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-comment-section',
+  standalone: true,
+  templateUrl: './comment-section.component.html',
+  styleUrls: ['./comment-section.component.scss'],
+  imports: [FormsModule, CommonModule],
+})
+export class CommentSectionComponent {
+  @Input() videoId!: number; // Nhận movieId từ film-details.component.html
+  comment: string = '';
+
+  submitComment() {
+    console.log(`Comment for movie ${this.videoId}:`, this.comment);
+  }
+}
+import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
+import { IThumbnailCard } from '../../../models/InterfaceData'; // Import kiểu dữ liệu Video
+import { CommonModule } from '@angular/common';
+import { FormatViewPipe } from '../../../pipes/format-view.pipe';
+
+@Component({
+  selector: 'app-movie-card',
+  templateUrl: './movie-card.component.html',
+  styleUrls: ['./movie-card.component.scss'],
+  imports: [CommonModule, FormatViewPipe],
+})
+export class MovieCardComponent {
+  @Input() video!: IThumbnailCard;
+  @Input() isList: boolean = false;
+  constructor(private router: Router) {}
+
+  goToPlayPage() {
+    this.router.navigate(['/play', this.video.id]);
+  }
+
+  goToFilmDetails() {
+    this.router.navigate(['/film-details', this.video.id]);
+  }
+
+  truncateTitle(title: string): string {
+    return title.length > 20 ? title.substring(0, 20) + '...' : title;
+  }
+}
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-movie-info',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './movie-info.component.html',
+  styleUrls: ['./movie-info.component.scss'],
+})
+export class MovieInfoComponent {
+  @Input() movie: any; // Nhận dữ liệu phim từ component cha
+  @Input() background: string = '';
+  @Input() thumbnail: string = '';
+  @Input() title: string = '';
+  @Input() description: string = '';
+  @Input() totalViews: number = 0;
+  @Input() latestEpisodes: number[] = [];
+  @Input() rating: number = 0;
+  @Input() genres: string[] = [];
+  @Input() followers: number = 0;
+  @Input() status: string = '';
+  @Input() country: string = '';
+  @Input() studio: string = '';
+  @Input() schedule: string = '';
+
+  selectedRating: number = 0;
+  ratingLabel: string = '';
+  hoveredRating: number = 0;
+
+  setRating(star: number) {
+    this.selectedRating = star;
+  }
+
+  ratingLabels: string[] = [
+    'Tệ',
+    'Không hay',
+    'Bình thường',
+    'Khá hay',
+    'Rất hay',
+    'Tuyệt vời',
+    'Xuất sắc',
+    'Cực đỉnh',
+    'Hoàn hảo',
+    'Huyền thoại',
+  ];
+  onHover(star: number) {
+    this.hoveredRating = star;
+    this.ratingLabel = this.ratingLabels[star - 1]; // Gán mức đánh giá
+  }
+
+  onLeave() {
+    this.hoveredRating = 0;
+    this.ratingLabel = '';
+  }
+}
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../../services/api-service/auth.service';
+import { CommonModule } from '@angular/common';
+import { INotification } from '../../../models/InterfaceData';
+import { addNotification } from '../../../store/notification/notification.action';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { ApiService } from '../../../services/config-service/api.service';
+import { IFullInfoAccountRessponse } from '../../../models/InterfaceResponse';
+import { SERVER_RESPONSE } from '../../../models/ApiResponse';
+
+@Component({
+  selector: 'app-user-profile',
+  imports: [CommonModule],
+  templateUrl: './user-profile.component.html',
+  styleUrls: ['./user-profile.component.scss'],
+})
+export class UserProfileComponent implements OnInit {
+  userAvatarUrl: string = 'assets/avatar.jpg';
+  backgroundUrl: string = 'assets/background.jpg';
+
+  userInfo: IFullInfoAccountRessponse = {
+    username: '',
+    email: '',
+    role: '',
+    displayName: '',
+    fullName: '',
+    gender: null,
+    bio: '',
+    cccd: '',
+    phoneNumber: '',
+    isActive: false,
+    lastLogin: '',
+    gpValue: 0,
+    createdAt: '',
+    updatedAt: '',
+  };
+
+  constructor(private authService: AuthService, private store: Store) {}
+
+  ngOnInit() {
+    this.loadAvatar();
+    this.loadBackground();
+
+    this.authService.getProfile().subscribe((response) => {
+      this.userInfo = response.result;
+      if (response.status !== 'Ok') {
+        this.fetchInfoError(response);
+      }
+    });
+  }
+
+  fetchInfoError(response: SERVER_RESPONSE<IFullInfoAccountRessponse>) {
+    const notification: INotification = {
+      id: Date.now().toString(),
+      title: 'Có lỗi xảy ra !',
+      message: response.message,
+      type: 'error',
+      timestamp: new Date(),
+    };
+    this.store.dispatch(addNotification({ notification }));
+  }
+
+  /**
+   * Hàm xử lý load ảnh người dùng từ API
+   * @param apiCall Hàm gọi API trả về Observable<Blob>
+   * @param updateUrl Hàm cập nhật giá trị URL của ảnh
+   * @param errorMessage Thông báo lỗi nếu tải ảnh thất bại
+   */
+  private handleImageLoad(
+    apiCall: () => Observable<Blob>,
+    updateUrl: (url: string) => void,
+    errorMessage: string
+  ) {
+    apiCall().subscribe(
+      (blob) => {
+        const objectURL = URL.createObjectURL(blob);
+        updateUrl(objectURL);
+      },
+      (error) => {
+        console.error('Lỗi khi tải ảnh:', error);
+        const notification: INotification = {
+          id: Date.now().toString(),
+          title: 'Thất bại',
+          message: errorMessage,
+          type: 'warning',
+          timestamp: new Date(),
+        };
+        this.store.dispatch(addNotification({ notification }));
+      }
+    );
+  }
+
+  // Hàm tải ảnh đại diện
+  loadAvatar() {
+    this.handleImageLoad(
+      () => this.authService.getAvatar('original'),
+      (url) => (this.userAvatarUrl = url),
+      'Có lỗi khi tải ảnh đại diện của bạn'
+    );
+  }
+
+  // Hàm tải ảnh nền
+  loadBackground() {
+    this.handleImageLoad(
+      () => this.authService.getBackground('original'),
+      (url) => (this.backgroundUrl = url),
+      'Có lỗi khi tải ảnh nền của bạn'
+    );
+  }
+
+  /**
+   * Hàm upload ảnh chung
+   * @param event Sự kiện change của input file
+   * @param uploadApi Hàm gọi API upload trả về Observable<any>
+   * @param successCallback Hàm gọi sau khi upload thành công
+   * @param errorMessage Thông báo lỗi nếu upload thất bại
+   */
+  private handleImageUpload(
+    event: any,
+    uploadApi: (file: File) => Observable<any>,
+    successCallback: () => void,
+    errorMessage: string
+  ) {
+    const file = event.target.files[0];
+    if (file) {
+      uploadApi(file).subscribe({
+        next: () => {
+          const notification: INotification = {
+            id: Date.now().toString(),
+            title: 'Đã cập nhật',
+            message: 'Tải ảnh lên thành công',
+            type: 'success',
+            timestamp: new Date(),
+          };
+          this.store.dispatch(addNotification({ notification }));
+          successCallback();
+        },
+        error: (err) => {
+          console.error('Lỗi upload:', err);
+          const notification: INotification = {
+            id: Date.now().toString(),
+            title: 'Thất bại',
+            message: errorMessage,
+            type: 'error',
+            timestamp: new Date(),
+          };
+          this.store.dispatch(addNotification({ notification }));
+        },
+      });
+    }
+  }
+
+  // Upload ảnh nền
+  uploadBackground(event: any) {
+    this.handleImageUpload(
+      event,
+      (file) => this.authService.uploadBackground(file),
+      () => this.loadBackground(),
+      'Tải ảnh nền lên thất bại'
+    );
+  }
+
+  // Upload ảnh đại diện
+  uploadAvatar(event: any) {
+    this.handleImageUpload(
+      event,
+      (file) => this.authService.uploadAvatar(file),
+      () => this.loadAvatar(),
+      'Tải ảnh đại diện lên thất bại'
+    );
+  }
+}
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Output,
+    ViewChild,
+  } from '@angular/core';
+  import { SERVER_RESPONSE } from '../../../models/ApiResponse';
+  import {
+    IGuestRequestModerator,
+    IOptionDropType,
+    IOptionItem,
+    IUpdateProfileAccount,
+    IUserRequestModerator,
+  } from '../../../models/InterfaceData';
+  import { AuthService } from '../../../services/api-service/auth.service';
+  import { Store } from '@ngrx/store';
+  import { selectOpenedForms } from '../../../store/open-form-state/form.selectors';
+  import { Observable } from 'rxjs';
+  import { closeForm } from '../../../store/open-form-state/form.actions';
+  import { selectNotifications } from '../../../store/notification/notification.selector';
+  import { INotification } from '../../../models/InterfaceData';
+  import { addNotification } from '../../../store/notification/notification.action';
+  import { CookieService } from 'ngx-cookie-service';
+  import { selectIsAuthenticated } from '../../../store/auth/auth.selectors';
+  import { InteractiveButtonComponent } from '../../regular/button/button.component';
+  import { DynamicInputComponent } from '../../regular/input/input.component';
+  import { CommonModule } from '@angular/common';
+  import { IModeratorRequestResponse } from '../../../models/InterfaceResponse';
+  import { DropdownButtonComponent } from '../../regular/dropdown/dropdown.component';
+  
+  @Component({
+    selector: 'app-edit-info-account',
+    imports: [
+      CommonModule,
+      InteractiveButtonComponent,
+      DynamicInputComponent,
+      DropdownButtonComponent,
+    ],
+    templateUrl: './edit-info-account.component.html',
+    styleUrl: './edit-info-account.component.scss',
+  })
+  export class EditInfoAccountComponent {
+    openedForms$: Observable<{ [key: string]: boolean }>;
+    isAuthenticated$!: Observable<boolean>;
+    shouldValidate = false;
+    loading = false;
+    token: string = '';
+    data: IUpdateProfileAccount = {
+      displayName: '',
+      fullName: '',
+      gender: null,
+      bio: '',
+      phoneNumber: '',
+    };
+    gender: IOptionDropType[] = [
+      {
+        value: true,
+        label: 'Nam',
+      },
+      {
+        value: false,
+        label: 'Nữ',
+      },
+    ];
+    selectedOptions: IOptionDropType = { value: null, label: '' };
+  
+    notifications$: Observable<INotification[]>;
+  
+    @Output() close = new EventEmitter<void>();
+    @ViewChild('popupContainer') popupContainer!: ElementRef;
+  
+    constructor(
+      private store: Store,
+      private authService: AuthService,
+      private cookieService: CookieService
+    ) {
+      this.openedForms$ = this.store.select(selectOpenedForms);
+      this.notifications$ = this.store.select(selectNotifications);
+      this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+    }
+  
+    ngOnInit(): void {}
+  
+    handleSelect(selected: IOptionDropType | IOptionDropType[]): void {
+      if (Array.isArray(selected)) {
+        this.selectedOptions = selected[0] || { value: null, label: '' }; // Lấy phần tử đầu tiên nếu có
+      } else {
+        this.selectedOptions = selected;
+      }
+      console.log(this.selectedOptions);
+    }
+  
+    handleOnChangeBio(b: string) {}
+  
+    handleOnChangeDisplayName(d: string) {}
+  
+    handleOnChangeFullName(fullName: string) {}
+  
+    handleOnChangePhoneNumber(phoneNumber: string) {}
+  
+    validateInput() {
+      this.shouldValidate = false;
+      setTimeout(() => {
+        this.shouldValidate = true;
+      });
+    }
+  
+    handleValidationResult(isValid: boolean) {
+      console.log(isValid ? 'Input hợp lệ ✅' : 'Input không hợp lệ ❌');
+    }
+  
+    /** Xử lý đăng ký */
+    onFormSubmit() {
+      this.validateInput();
+  
+      setTimeout(() => {
+        this.loading = true;
+      }, 100);
+      this.loading = false;
+    }
+  
+    private setUserCookies(userData: { [key: string]: string }): void {
+      Object.entries(userData).forEach(([key, value]) => {
+        this.cookieService.set(key, value, 7, '/', '', true, 'Strict');
+      });
+    }
+  
+    /** Xử lý khi đăng ký thành công */
+    private handleRegisterSuccess(
+      response: SERVER_RESPONSE<IModeratorRequestResponse>
+    ) {
+      this.loading = false;
+      console.log('Đăng ký thành công:', response);
+      this.store.dispatch(
+        addNotification({
+          notification: {
+            id: Date.now().toString(),
+            title: 'Thành công!',
+            message: response.message,
+            type: 'success',
+            timestamp: new Date(),
+          },
+        })
+      );
+      this.closePopup();
+    }
+  
+    /** Xử lý khi đăng ký thất bại */
+    private handleRegisterError(error: any) {
+      this.loading = false;
+      this.store.dispatch(
+        addNotification({
+          notification: {
+            id: Date.now().toString(),
+            title: 'Thất bại',
+            message: 'Đăng ký thất bại.',
+            type: 'error',
+            timestamp: new Date(),
+          },
+        })
+      );
+      console.error('Đăng nhập thất bại:', error);
+    }
+  
+    closePopup() {
+      this.store.dispatch(closeForm({ formType: 'modal-update-info-account' }));
+    }
+  
+    /** Đóng popup nếu click outside */
+    closePopupOnOutside(event: Event) {
+      if (
+        this.popupContainer &&
+        !this.popupContainer.nativeElement.contains(event.target)
+      ) {
+        this.closePopup();
+      }
+    }
+  }
+  import {
+    Component,
+    Output,
+    EventEmitter,
+    ElementRef,
+    ViewChild,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  import { Store } from '@ngrx/store';
+  import { Observable } from 'rxjs';
+  import { FormsModule } from '@angular/forms';
+  import { selectOpenedForms } from '../../../store/open-form-state/form.selectors';
+  import {
+    closeForm,
+    openForm,
+  } from '../../../store/open-form-state/form.actions';
+  import { InteractiveButtonComponent } from '../../regular/button/button.component';
+  import { DynamicInputComponent } from '../../regular/input/input.component';
+  import {
+    IDataLoginUsername,
+    IDataLoginEmail,
+  } from '../../../models/InterfaceData';
+  import { AuthService } from '../../../services/api-service/auth.service';
+  import { SERVER_RESPONSE } from '../../../models/ApiResponse';
+  import { ILoginResponse } from '../../../models/InterfaceResponse';
+  import { selectNotifications } from '../../../store/notification/notification.selector';
+  import { INotification } from '../../../models/InterfaceData';
+  import { addNotification } from '../../../store/notification/notification.action';
+  import { CookieService } from 'ngx-cookie-service';
+  import { login } from '../../../store/auth/auth.actions';
+  import { selectIsAuthenticated } from '../../../store/auth/auth.selectors';
+  
+  @Component({
+    selector: 'app-popup-login-form',
+    standalone: true,
+    imports: [
+      CommonModule,
+      FormsModule,
+      InteractiveButtonComponent,
+      DynamicInputComponent,
+    ],
+    templateUrl: `./login-form.component.html`,
+    styleUrl: `./login-form.component.scss`,
+  })
+  export class LoginFormPopupComponent {
+    openedForms$: Observable<{ [key: string]: boolean }>;
+    shouldValidate = false;
+    loading = false;
+    data: IDataLoginUsername = {
+      username: '',
+      password: '',
+    };
+    notifications$: Observable<INotification[]>;
+  
+    @Output() close = new EventEmitter<void>();
+    @ViewChild('popupContainer') popupContainer!: ElementRef;
+  
+    constructor(
+      private store: Store,
+      private authService: AuthService,
+      private cookieService: CookieService
+    ) {
+      this.openedForms$ = this.store.select(selectOpenedForms);
+      this.notifications$ = this.store.select(selectNotifications);
+    }
+  
+    handleOpenRegisterForm() {
+      this.store.dispatch(openForm({ formType: 'register' }));
+      // this.store.dispatch(closeForm({ formType: 'login' }));
+    }
+  
+    handleOnChangeUserName(u: string) {
+      this.data.username = u;
+    }
+  
+    handleOnChangePassWord(p: string) {
+      this.data.password = p;
+    }
+  
+    validateInput() {
+      this.shouldValidate = false;
+      setTimeout(() => {
+        this.shouldValidate = true;
+      });
+    }
+  
+    handleValidationResult(isValid: boolean) {
+      if (isValid) {
+        console.log('Input hợp lệ ✅');
+      } else {
+        console.log('Input không hợp lệ ❌');
+      }
+    }
+  
+    private setUserCookies(userData: { [key: string]: string }): void {
+      Object.entries(userData).forEach(([key, value]) => {
+        this.cookieService.set(key, value, 7, '/', '', true, 'Strict');
+      });
+    }
+  
+    /** Xử lý đăng nhập */
+    onFormSubmit() {
+      this.validateInput();
+      console.log(this.data);
+      // Chờ một chút để validation chạy xong
+      setTimeout(() => {
+        if (this.data.username && this.data.password) {
+          this.loading = true; // Bật loading
+  
+          // Kiểm tra username có chứa "@" không?
+          if (this.data.username.includes('@')) {
+            const dataLogin: IDataLoginEmail = {
+              username: this.data.username,
+              password: this.data.password,
+            };
+  
+            this.authService.loginByEmail(dataLogin).subscribe({
+              next: (response: SERVER_RESPONSE<ILoginResponse>) => {
+                this.handleLoginSuccess(response);
+              },
+              error: (error) => this.handleLoginError(error),
+            });
+          } else {
+            const dataLogin: IDataLoginUsername = {
+              username: this.data.username,
+              password: this.data.password,
+            };
+            console.log(dataLogin);
+  
+            this.authService.loginByUsername(dataLogin).subscribe({
+              next: (response: SERVER_RESPONSE<ILoginResponse>) => {
+                this.handleLoginSuccess(response);
+              },
+              error: (error) => this.handleLoginError(error),
+            });
+          }
+        } else {
+          console.log('Vui lòng nhập đầy đủ thông tin đăng nhập');
+        }
+      }, 100);
+    }
+  
+    /** Xử lý khi đăng nhập thành công */
+    private handleLoginSuccess(response: SERVER_RESPONSE<ILoginResponse>) {
+      this.loading = false; // Tắt loading
+      console.log('Đăng nhập thành công:', response);
+      const notification: INotification = {
+        id: Date.now().toString(),
+        title: 'Thành công!',
+        message: response.message,
+        type: 'success',
+        timestamp: new Date(),
+      };
+      this.store.dispatch(login());
+      this.store.dispatch(addNotification({ notification }));
+      this.setUserCookies({
+        username: response.result.username,
+        email: response.result.email,
+        role: response.result.role,
+        access_token: response.result.tokenAccessType,
+        refresh_token: response.result.refreshValue,
+        expiry_time: response.result.expiryTime,
+      });
+      sessionStorage.setItem('token', response.result.accessToken);
+      this.closePopup();
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    }
+  
+    /** Xử lý khi đăng nhập thất bại */
+    private handleLoginError(error: any) {
+      this.loading = false; // Tắt loading
+      const notification: INotification = {
+        id: Date.now().toString(),
+        title: 'Thất bại',
+        message: 'Đăng nhập thất bại',
+        type: 'error',
+        timestamp: new Date(),
+      };
+      this.store.dispatch(addNotification({ notification }));
+      this.store.dispatch(login());
+      console.error('Đăng nhập thất bại:', error);
+    }
+  
+    closePopup() {
+      this.store.dispatch(closeForm({ formType: 'login' }));
+      this.data = {
+        username: '',
+        password: '',
+      };
+    }
+  
+    /** Đóng popup nếu click outside */
+    closePopupOnOutside(event: Event) {
+      if (
+        this.popupContainer &&
+        !this.popupContainer.nativeElement.contains(event.target)
+      ) {
+        this.closePopup();
+      }
+    }
+  }
+  import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Output,
+    ViewChild,
+  } from '@angular/core';
+  import { SERVER_RESPONSE } from '../../../models/ApiResponse';
+  import {
+    IGuestRequestModerator,
+    IUserRequestModerator,
+  } from '../../../models/InterfaceData';
+  import { AuthService } from '../../../services/api-service/auth.service';
+  import { Store } from '@ngrx/store';
+  import { selectOpenedForms } from '../../../store/open-form-state/form.selectors';
+  import { Observable } from 'rxjs';
+  import { closeForm } from '../../../store/open-form-state/form.actions';
+  import { DynamicInputComponent } from '../../regular/input/input.component';
+  import { InteractiveButtonComponent } from '../../regular/button/button.component';
+  import { CommonModule } from '@angular/common';
+  import { selectNotifications } from '../../../store/notification/notification.selector';
+  import { INotification } from '../../../models/InterfaceData';
+  import { addNotification } from '../../../store/notification/notification.action';
+  import { CookieService } from 'ngx-cookie-service';
+  import { selectIsAuthenticated } from '../../../store/auth/auth.selectors';
+  import { IModeratorRequestResponse } from '../../../models/InterfaceResponse';
+  
+  @Component({
+    selector: 'app-reg-moderator',
+    standalone: true,
+    imports: [CommonModule, DynamicInputComponent, InteractiveButtonComponent],
+    templateUrl: './reg-moderator.component.html',
+    styleUrl: './reg-moderator.component.scss',
+  })
+  export class RegModeratorComponent {
+    openedForms$: Observable<{ [key: string]: boolean }>;
+    isAuthenticated$: Observable<boolean>;
+    shouldValidate = false;
+    loading = false;
+    token: string = sessionStorage.getItem('token') ?? '';
+    role: string = 'ROLE_GUEST';
+    passwordAgain: string = '';
+    data: IGuestRequestModerator = {
+      username: '',
+      email: '',
+      password: '',
+      cccd: '',
+      phoneNumber: '',
+      fullName: '',
+    };
+    dataUser: IUserRequestModerator = {
+      cccd: '',
+      phoneNumber: '',
+      fullName: '',
+    };
+    notifications$: Observable<INotification[]>;
+  
+    @Output() close = new EventEmitter<void>();
+    @ViewChild('popupContainer') popupContainer!: ElementRef;
+  
+    constructor(
+      private store: Store,
+      private authService: AuthService,
+      private cookieService: CookieService
+    ) {
+      this.openedForms$ = this.store.select(selectOpenedForms);
+      this.notifications$ = this.store.select(selectNotifications);
+      this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+  
+      const storedPhoneNumber = this.cookieService.get('phoneNumber');
+      const storedCccd = this.cookieService.get('cccd');
+      const storedFullname = this.cookieService.get('fullName');
+      if (storedPhoneNumber || storedCccd || storedFullname) {
+        this.dataUser.phoneNumber = storedPhoneNumber;
+        this.dataUser.cccd = storedCccd;
+        this.dataUser.fullName = storedFullname;
+      }
+    }
+  
+    ngOnInit(): void {
+      const token = sessionStorage.getItem('token');
+      this.role = this.cookieService.get('role');
+      setTimeout(() => {
+        if (this.token && this.role === 'ROLE_USER') {
+          this.authService.getModeratorProfile().subscribe(
+            (response) => {
+              this.cookieService.set('fullName', response.result.fullName);
+              this.cookieService.set('cccd', response.result.cccd);
+              this.cookieService.set('phoneNumber', response.result.phoneNumber);
+              console.log('Gọi API thành công:', response);
+            },
+            (error) => {
+              console.error('Gọi API thất bại:', error);
+            }
+          );
+        }
+      }, 500); // Delay 500ms để đảm bảo token đã được lưu
+    }
+  
+    handleOnChangeUserName(u: string) {
+      this.data.username = u;
+    }
+  
+    handleOnChangePassWord(p: string) {
+      this.data.password = p;
+    }
+  
+    handleOnChangeEmail(e: string) {
+      this.data.email = e;
+    }
+  
+    handleOnChangePasswordAgain(pa: string) {
+      this.passwordAgain = pa;
+    }
+  
+    handleOnChangeCccd(cccd: string) {
+      if (!this.token && this.role === 'ROLE_GUEST') {
+        this.data.cccd = cccd;
+      } else {
+        this.dataUser.cccd = cccd;
+      }
+    }
+    handleOnChangeFullName(fullName: string) {
+      if (!this.token) {
+        this.data.fullName = fullName;
+      } else {
+        this.dataUser.fullName = fullName;
+      }
+    }
+  
+    handleOnChangePhoneNumber(phoneNumber: string) {
+      if (!this.token && this.role === 'ROLE_GUEST') {
+        this.data.phoneNumber = phoneNumber;
+      } else {
+        this.dataUser.phoneNumber = phoneNumber;
+      }
+    }
+  
+    validateInput() {
+      this.shouldValidate = false;
+      setTimeout(() => {
+        this.shouldValidate = true;
+      });
+    }
+  
+    handleValidationResult(isValid: boolean) {
+      console.log(isValid ? 'Input hợp lệ ✅' : 'Input không hợp lệ ❌');
+    }
+  
+    /** Xử lý đăng ký */
+    onFormSubmit() {
+      this.validateInput();
+      if (this.data.password !== this.passwordAgain) {
+        this.loading = false;
+        this.store.dispatch(
+          addNotification({
+            notification: {
+              id: Date.now().toString(),
+              title: 'Mật khẩu sai',
+              message: 'Mật khẩu nhập lại của bạn không khớp.',
+              type: 'error',
+              timestamp: new Date(),
+            },
+          })
+        );
+        return;
+      }
+  
+      setTimeout(() => {
+        this.loading = true;
+        if (!this.token && this.role === 'ROLE_GUEST') {
+          this.authService.requestModeratorForGuest(this.data).subscribe({
+            next: (response) => this.handleRegisterSuccess(response),
+            error: (error) => this.handleRegisterError(error),
+          });
+        }
+        if (!!this.isAuthenticated$ && this.role === 'ROLE_USER') {
+          console.log(this.dataUser);
+          this.authService.requestModeratorForUser(this.dataUser).subscribe({
+            next: (response) => this.handleRegisterSuccess(response),
+            error: (error) => this.handleRegisterError(error),
+          });
+        } else {
+          console.log('Vui lòng nhập đầy đủ thông tin đăng nhập');
+        }
+      }, 100);
+      this.loading = false;
+    }
+  
+    private setUserCookies(userData: { [key: string]: string }): void {
+      Object.entries(userData).forEach(([key, value]) => {
+        this.cookieService.set(key, value, 7, '/', '', true, 'Strict');
+      });
+    }
+  
+    /** Xử lý khi đăng ký thành công */
+    private handleRegisterSuccess(
+      response: SERVER_RESPONSE<IModeratorRequestResponse>
+    ) {
+      this.loading = false;
+      console.log('Đăng ký thành công:', response);
+      this.store.dispatch(
+        addNotification({
+          notification: {
+            id: Date.now().toString(),
+            title: 'Thành công!',
+            message: response.message,
+            type: 'success',
+            timestamp: new Date(),
+          },
+        })
+      );
+      this.closePopup();
+    }
+  
+    /** Xử lý khi đăng ký thất bại */
+    private handleRegisterError(error: any) {
+      this.loading = false;
+      this.store.dispatch(
+        addNotification({
+          notification: {
+            id: Date.now().toString(),
+            title: 'Thất bại',
+            message: 'Đăng ký thất bại.',
+            type: 'error',
+            timestamp: new Date(),
+          },
+        })
+      );
+      console.error('Đăng nhập thất bại:', error);
+    }
+  
+    closePopup() {
+      this.store.dispatch(closeForm({ formType: 'reg-moderator' }));
+      this.data = {
+        username: '',
+        email: '',
+        password: '',
+        fullName: '',
+        cccd: '',
+        phoneNumber: '',
+      };
+      this.passwordAgain = '';
+    }
+  
+    /** Đóng popup nếu click outside */
+    closePopupOnOutside(event: Event) {
+      if (
+        this.popupContainer &&
+        !this.popupContainer.nativeElement.contains(event.target)
+      ) {
+        this.closePopup();
+      }
+    }
+  }
+  import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Output,
+    ViewChild,
+  } from '@angular/core';
+  import { SERVER_RESPONSE } from '../../../models/ApiResponse';
+  import { ILoginResponse } from '../../../models/InterfaceResponse';
+  import { IDataRegisterUser } from '../../../models/InterfaceData';
+  import { AuthService } from '../../../services/api-service/auth.service';
+  import { Store } from '@ngrx/store';
+  import { selectOpenedForms } from '../../../store/open-form-state/form.selectors';
+  import { Observable } from 'rxjs';
+  import {
+    closeForm,
+    openForm,
+  } from '../../../store/open-form-state/form.actions';
+  import { DynamicInputComponent } from '../../regular/input/input.component';
+  import { InteractiveButtonComponent } from '../../regular/button/button.component';
+  import { CommonModule } from '@angular/common';
+  import { selectNotifications } from '../../../store/notification/notification.selector';
+  import { INotification } from '../../../models/InterfaceData';
+  import { addNotification } from '../../../store/notification/notification.action';
+  import { CookieService } from 'ngx-cookie-service';
+  
+  @Component({
+    selector: 'app-register-form',
+    imports: [CommonModule, DynamicInputComponent, InteractiveButtonComponent],
+    templateUrl: './register-form.component.html',
+    styleUrl: './register-form.component.scss',
+  })
+  export class RegisterFormComponent {
+    openedForms$: Observable<{ [key: string]: boolean }>;
+    shouldValidate = false;
+    loading = false;
+    passwordAgain: string = '';
+    data: IDataRegisterUser = {
+      username: '',
+      email: '',
+      password: '',
+    };
+    notifications$: Observable<INotification[]>;
+  
+    @Output() close = new EventEmitter<void>();
+    @ViewChild('popupContainer') popupContainer!: ElementRef;
+  
+    constructor(
+      private store: Store,
+      private authService: AuthService,
+      private cookieService: CookieService
+    ) {
+      this.openedForms$ = this.store.select(selectOpenedForms);
+      this.notifications$ = this.store.select(selectNotifications);
+    }
+  
+    toggleOpenRegModerator() {
+      this.store.dispatch(openForm({ formType: 'reg-moderator' }));
+    }
+  
+    handleOnChangeUserName(u: string) {
+      this.data.username = u;
+    }
+  
+    handleOnChangePassWord(p: string) {
+      this.data.password = p;
+    }
+  
+    handleOnChangeEmail(e: string) {
+      this.data.email = e;
+    }
+  
+    handleOnChangePasswordAgain(pa: string) {
+      this.passwordAgain = pa;
+    }
+  
+    validateInput() {
+      this.shouldValidate = false;
+      setTimeout(() => {
+        this.shouldValidate = true;
+      });
+    }
+  
+    handleValidationResult(isValid: boolean) {
+      if (isValid) {
+        console.log('Input hợp lệ ✅');
+      } else {
+        console.log('Input không hợp lệ ❌');
+      }
+    }
+  
+    /** Xử lý đăng ký */
+    onFormSubmit() {
+      this.validateInput();
+      console.log(this.data);
+      if (this.data.password !== this.passwordAgain) {
+        this.loading = false; // Tắt loading
+        const notification: INotification = {
+          id: Date.now().toString(),
+          title: 'Mật khẩu sai',
+          message: 'Mật khẩu nhập lại của bạn không khớp.',
+          type: 'error',
+          timestamp: new Date(),
+        };
+        this.store.dispatch(addNotification({ notification }));
+        return;
+      }
+      // Chờ một chút để validation chạy xong
+      setTimeout(() => {
+        this.loading = true;
+        if (this.data.username && this.data.password) {
+          const dataRegister: IDataRegisterUser = {
+            username: this.data.username,
+            email: this.data.email,
+            password: this.data.password,
+          };
+          this.authService.register(dataRegister).subscribe({
+            next: (response: SERVER_RESPONSE<ILoginResponse>) => {
+              this.handleRegisterSuccess(response);
+            },
+            error: (error) => this.handleRegisterError(error),
+          });
+        } else {
+          console.log('Vui lòng nhập đầy đủ thông tin đăng nhập');
+        }
+      }, 100);
+      this.loading = false;
+    }
+  
+    private setUserCookies(userData: { [key: string]: string }): void {
+      Object.entries(userData).forEach(([key, value]) => {
+        this.cookieService.set(key, value, 7, '/', '', true, 'Strict');
+      });
+    }
+  
+    /** Xử lý khi đăng nhập thành công */
+    private handleRegisterSuccess(response: SERVER_RESPONSE<ILoginResponse>) {
+      this.loading = false; // Tắt loading
+      console.log('Đăng ký thành công:', response);
+      const notification: INotification = {
+        id: Date.now().toString(),
+        title: 'Thành công!',
+        message: response.message,
+        type: 'success',
+        timestamp: new Date(),
+      };
+      this.store.dispatch(addNotification({ notification }));
+      this.setUserCookies({
+        username: response.result.username,
+        email: response.result.email,
+        role: response.result.role,
+        access_token: response.result.tokenAccessType,
+        expiry_time: response.result.expiryTime,
+        refresh_token: response.result.refreshValue,
+      });
+      this.closePopup();
+      setTimeout(() => {
+        // window.location.reload();
+      }, 100);
+    }
+  
+    /** Xử lý khi đăng nhập thất bại */
+    private handleRegisterError(error: any) {
+      this.loading = false; // Tắt loading
+      const notification: INotification = {
+        id: Date.now().toString(),
+        title: 'Thất bại',
+        message: 'Đăng ký thất bại.',
+        type: 'error',
+        timestamp: new Date(),
+      };
+      this.store.dispatch(addNotification({ notification }));
+      console.error('Đăng ký thất bại:', error);
+    }
+  
+    closePopup() {
+      this.store.dispatch(closeForm({ formType: 'register' }));
+      this.data = {
+        username: '',
+        email: '',
+        password: '',
+      };
+      this.passwordAgain = '';
+    }
+  
+    /** Đóng popup nếu click outside */
+    closePopupOnOutside(event: Event) {
+      if (
+        this.popupContainer &&
+        !this.popupContainer.nativeElement.contains(event.target)
+      ) {
+        this.closePopup();
+      }
+    }
+  }
+  import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnInit,
+    OnDestroy,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  import {
+    trigger,
+    state,
+    style,
+    animate,
+    transition,
+  } from '@angular/animations';
+  import { Subject, timer } from 'rxjs';
+  import { takeUntil } from 'rxjs/operators';
+  
+  export type NotificationType = 'success' | 'warning' | 'error' | 'info';
+  
+  @Component({
+    selector: 'app-notification-card',
+    templateUrl: './alert-notification.component.html',
+    styleUrl: './alert-notification.component.scss',
+    standalone: true,
+    imports: [CommonModule],
+    animations: [
+      trigger('notificationState', [
+        state(
+          'visible',
+          style({
+            opacity: 1,
+            transform: 'translateY(0)',
+          })
+        ),
+        state(
+          'hidden',
+          style({
+            opacity: 0,
+            transform: 'translateY(-100%)',
+          })
+        ),
+        transition('hidden => visible', animate('300ms ease-in')),
+        transition('visible => hidden', animate('300ms ease-out')),
+      ]),
+    ],
+  })
+  export class AlertNotificationComponent implements OnInit, OnDestroy {
+    @Input() title: string = '';
+    @Input() message: string = '';
+    @Input() type: NotificationType = 'info';
+    @Input() timestamp: Date = new Date();
+    @Input() autoClose: boolean = true;
+  
+    @Output() closed = new EventEmitter<void>();
+    @Output() clicked = new EventEmitter<void>();
+  
+    state: 'visible' | 'hidden' = 'visible';
+    private destroy$ = new Subject<void>();
+  
+    ngOnInit() {
+      if (this.autoClose) {
+        timer(5000)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => this.dismiss());
+      }
+    }
+  
+    ngOnDestroy() {
+      this.destroy$.next();
+      this.destroy$.complete();
+    }
+  
+    getIcon(): string {
+      const icons = {
+        success: '✅',
+        warning: '‼‼',
+        error: '❌',
+        info: '💦',
+      };
+      return icons[this.type];
+    }
+  
+    dismiss(event?: Event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      this.state = 'hidden';
+      setTimeout(() => this.closed.emit(), 300);
+    }
+  
+    onClick() {
+      this.clicked.emit();
+    }
+  }
+  import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-interactive-button',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './button.component.html',
+  styleUrls: ['./button.component.scss'],
+})
+export class InteractiveButtonComponent {
+  @Input() buttonText: string = '';
+  @Input() buttonType: 'primary' | 'secondary' | 'danger' = 'primary';
+  @Input() buttonSize: 'small' | 'medium' | 'large' = 'medium';
+  @Input() isDisabled: boolean = false;
+  @Input() iconName?: string;
+  @Input() isLoading: boolean = false;
+  @Input() tooltipText?: string;
+
+  @Output() buttonClick = new EventEmitter<any>();
+  @Output() buttonHover = new EventEmitter<boolean>();
+  @Output() buttonFocus = new EventEmitter<boolean>();
+
+  onButtonClick(event: any): void {
+    if (!this.isDisabled && !this.isLoading) {
+      this.buttonClick.emit(event);
+    }
+  }
+
+  onHover(isHovered: boolean): void {
+    if (!this.isDisabled) {
+      this.buttonHover.emit(isHovered);
+    }
+  }
+
+  onFocus(isFocused: boolean): void {
+    if (!this.isDisabled) {
+      this.buttonFocus.emit(isFocused);
+    }
+  }
+}
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-card-notifications',
+  imports: [],
+  templateUrl: './card-notifications.component.html',
+  styleUrl: './card-notifications.component.scss'
+})
+export class CardNotificationsComponent {
+
+}
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+interface Field {
+  label: string;
+  value: string;
+}
+
+@Component({
+  selector: 'app-display-card',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './display-card.component.html',
+  styleUrls: ['./display-card.component.scss'],
+})
+export class DisplayCardComponent {
+  @Input() imageUrl: string =
+    'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=800';
+  @Input() title: string = '';
+  @Input() fields: Field[] = [];
+  @Input() maxWidth: string = '400px';
+  @Input() variant: 'primary' | 'secondary' | 'third' | 'primary' = 'primary';
+
+  @Output() cardClick = new EventEmitter<void>();
+
+  showFallback: boolean = false;
+
+  handleImageError(event: Event): void {
+    this.showFallback = true;
+  }
+
+  handleClick(): void {
+    this.cardClick.emit();
+  }
+
+  ngOnInit(): void {
+    if (this.fields.length > 3) {
+      console.warn(
+        'Maximum 3 fields are allowed. Extra fields will be ignored.'
+      );
+      this.fields = this.fields.slice(0, 3);
+    }
+  }
+}
+import {
+    AfterViewInit,
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    ElementRef,
+    ViewChild,
+    OnInit,
+    HostListener,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+  import { InteractiveButtonComponent } from '../button/button.component';
+  
+  interface DropdownOption {
+    value: string | number;
+    label: string;
+    disabled?: boolean;
+  }
+  
+  @Component({
+    selector: 'app-dropdown-button',
+    standalone: true,
+    imports: [CommonModule, InteractiveButtonComponent],
+    templateUrl: './dropdown.component.html',
+    styleUrls: ['./dropdown.component.scss'],
+    providers: [
+      {
+        provide: NG_VALUE_ACCESSOR,
+        useExisting: DropdownButtonComponent,
+        multi: true,
+      },
+    ],
+  })
+  export class DropdownButtonComponent
+    implements AfterViewInit, OnInit, ControlValueAccessor
+  {
+    @Input() label: string = 'Select Option';
+    @Input() options: DropdownOption[] = [];
+    @Input() variant: 'primary' | 'secondary' | 'outlined' | 'text' = 'primary';
+    @Input() size: 'small' | 'medium' | 'large' = 'medium';
+    @Input() customDropField: 'type-filter' | 'year-filter' | 'type-filter' =
+      'type-filter';
+    @Input() disabled: boolean = false;
+    @Input() multiSelect: boolean = false;
+    @Input() isDisplayCheckbox: boolean = false;
+    @Input() isDisplaySelectedOpptionLabels: boolean = false;
+    @Input() isButtonControl: boolean = false;
+  
+    @Output() onSelect = new EventEmitter<DropdownOption | DropdownOption[]>();
+    @Output() onOpen = new EventEmitter<void>();
+    @Output() onClose = new EventEmitter<void>();
+  
+    @ViewChild('dropdownButton') dropdownButton!: ElementRef;
+    @ViewChild('dropdownMenu') dropdownMenu!: ElementRef;
+  
+    isOpen: boolean = false;
+    selectedIndex: number = -1;
+    selectedOptions: DropdownOption[] = [];
+    onChange: any = () => {};
+    onTouch: any = () => {};
+    loading = false;
+  
+    handleClick(event: any): void {
+      console.log('Button clicked!', event);
+      this.loading = true;
+  
+      setTimeout(() => {
+        this.loading = false;
+      }, 2000);
+    }
+  
+    handleCancel(event: any): void {
+      this.selectedOptions = [];
+    }
+  
+    handleHover(isHovered: boolean): void {
+      console.log('Button hover:', isHovered);
+    }
+  
+    handleFocus(isFocused: boolean): void {
+      console.log('Button focus:', isFocused);
+    }
+  
+    ngOnInit(): void {
+      this.setupKeyboardNavigation();
+    }
+    ngAfterViewInit(): void {
+      this.setupKeyboardNavigation();
+    }
+  
+    @HostListener('document:click', ['$event'])
+    onClick(event: MouseEvent): void {
+      const target = event.target as HTMLElement;
+      if (
+        !this.dropdownButton.nativeElement.contains(target) &&
+        !this.dropdownMenu.nativeElement.contains(target)
+      ) {
+        this.closeDropdown();
+      }
+    }
+  
+    toggleDropdown(event: MouseEvent): void {
+      event.stopPropagation();
+      if (this.disabled) return;
+  
+      this.isOpen = !this.isOpen;
+      if (this.isOpen) {
+        this.onOpen.emit();
+      } else {
+        this.onClose.emit();
+      }
+    }
+  
+    get selectedLabels(): string {
+      if (
+        this.isDisplaySelectedOpptionLabels &&
+        this.selectedOptions.length > 0
+      ) {
+        if (this.selectedOptions.length > 3) {
+          return `${this.selectedOptions
+            .slice(0, 3)
+            .map((o) => o.label)
+            .join(', ')} ...`;
+        }
+        return this.selectedOptions.map((o) => o.label).join(', ');
+      }
+      return this.label;
+    }
+  
+    selectOption(option: DropdownOption, index: number): void {
+      if (option.disabled) return;
+  
+      if (this.multiSelect) {
+        const exists = this.selectedOptions.some((o) => o.value === option.value);
+        if (exists) {
+          this.selectedOptions = this.selectedOptions.filter(
+            (o) => o.value !== option.value
+          );
+        } else {
+          this.selectedOptions.push(option);
+        }
+  
+        this.onSelect.emit(this.selectedOptions);
+        this.onChange(this.selectedOptions.map((opt) => opt.value));
+      } else {
+        // Nếu option hiện tại đã được chọn, thì bỏ chọn nó
+        if (
+          this.selectedOptions.length &&
+          this.selectedOptions[0].value === option.value
+        ) {
+          this.selectedOptions = [];
+          this.selectedIndex = -1;
+          this.onSelect.emit([]);
+          this.onChange(null);
+        } else {
+          this.selectedOptions = [option];
+          this.selectedIndex = index;
+          this.onSelect.emit(option);
+          this.onChange(option.value);
+        }
+        this.closeDropdown();
+      }
+  
+      this.onTouch();
+    }
+  
+    isSelected(option: DropdownOption): boolean {
+      return this.selectedOptions.some((o) => o.value === option.value);
+    }
+  
+    handleKeydown(event: KeyboardEvent): void {
+      if (this.disabled) return;
+  
+      switch (event.key) {
+        case 'Enter':
+        case ' ':
+          event.preventDefault();
+          if (!this.isOpen) {
+            this.isOpen = true;
+            this.onOpen.emit();
+          } else if (this.selectedIndex >= 0) {
+            this.selectOption(
+              this.options[this.selectedIndex],
+              this.selectedIndex
+            );
+          }
+          break;
+        case 'Escape':
+          this.closeDropdown();
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          if (!this.isOpen) {
+            this.isOpen = true;
+            this.onOpen.emit();
+          }
+          this.navigateOptions(1);
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          if (!this.isOpen) {
+            this.isOpen = true;
+            this.onOpen.emit();
+          }
+          this.navigateOptions(-1);
+          break;
+      }
+    }
+  
+    private navigateOptions(direction: number): void {
+      const newIndex = this.selectedIndex + direction;
+      if (newIndex >= 0 && newIndex < this.options.length) {
+        this.selectedIndex = newIndex;
+      }
+    }
+  
+    private closeDropdown(): void {
+      if (this.isOpen) {
+        this.isOpen = false;
+        this.onClose.emit();
+      }
+    }
+  
+    writeValue(value: any): void {
+      if (this.multiSelect && Array.isArray(value)) {
+        this.selectedOptions = this.options.filter((option) =>
+          value.includes(option.value)
+        );
+      } else {
+        const option = this.options.find((option) => option.value === value);
+        this.selectedOptions = option ? [option] : [];
+      }
+    }
+  
+    registerOnChange(fn: any): void {
+      this.onChange = fn;
+    }
+  
+    registerOnTouched(fn: any): void {
+      this.onTouch = fn;
+    }
+  
+    setDisabledState(isDisabled: boolean): void {
+      this.disabled = isDisabled;
+    }
+  
+    private setupKeyboardNavigation(): void {
+      if (!this.dropdownButton || !this.dropdownButton.nativeElement) {
+        return;
+      }
+  
+      this.dropdownButton.nativeElement.addEventListener(
+        'keydown',
+        (e: KeyboardEvent) => {
+          if (e.key === 'Tab') {
+            this.closeDropdown();
+          }
+        }
+      );
+    }
+  }
+  import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnChanges,
+    SimpleChanges,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  import { FormsModule } from '@angular/forms';
+  
+  @Component({
+    selector: 'app-dynamic-input',
+    templateUrl: './input.component.html',
+    styleUrls: ['./input.component.scss'],
+    standalone: true,
+    imports: [CommonModule, FormsModule],
+  })
+  export class DynamicInputComponent implements OnChanges {
+    @Input() type: 'text' | 'password' | 'number' = 'text';
+    @Input() label = '';
+    @Input() placeholder = '';
+    @Input() required = false;
+    @Input() minLength: number | null = null;
+    @Input() maxLength: number | null = null;
+    @Input() min: number | null = null;
+    @Input() max: number | null = null;
+    @Input() value: string | number = '';
+    @Input() icon: string | null = null;
+    @Input() isSvg: boolean = false;
+    @Input() variant: 'primary' | 'secondary' | 'other' = 'primary';
+  
+    @Input() shouldValidate = false; // Khi true, component cha sẽ trigger validation
+    @Output() valueChange = new EventEmitter<string | number>();
+    @Output() focus = new EventEmitter<void>();
+    @Output() blur = new EventEmitter<void>();
+    @Output() validationResult = new EventEmitter<boolean>(); // Emit kết quả validation
+    @Output() enterPress = new EventEmitter<void>(); // Sự kiện khi nhấn Enter
+  
+    inputId = `dynamic-input-${Math.random().toString(36).substr(2, 9)}`;
+    errorId = `error-${this.inputId}`;
+    hasError = false;
+    errorMessage = '';
+  
+    ngOnChanges(changes: SimpleChanges) {
+      // Nếu cha thay đổi shouldValidate thành true => kích hoạt validation
+      if (changes['shouldValidate'] && this.shouldValidate) {
+        this.triggerValidation();
+      }
+    }
+  
+    onInputChange(value: string | number) {
+      this.value = value;
+      this.valueChange.emit(value);
+    }
+  
+    onFocusHandler() {
+      this.focus.emit();
+    }
+  
+    onBlurHandler() {
+      this.blur.emit();
+    }
+  
+    onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Enter') {
+        this.enterPress.emit(); // Gửi sự kiện lên component cha
+      }
+    }
+  
+    triggerValidation(): boolean {
+      this.hasError = false;
+      this.errorMessage = '';
+  
+      if (this.required && !this.value) {
+        this.hasError = true;
+        this.errorMessage = 'Không được để trống giá trị này';
+      } else if (this.type === 'text' && typeof this.value === 'string') {
+        if (this.minLength !== null && this.value.length < this.minLength) {
+          this.hasError = true;
+          this.errorMessage = `Yêu cầu tối thiểu ${this.minLength} ký tự`;
+        } else if (
+          this.maxLength !== null &&
+          this.value.length > this.maxLength
+        ) {
+          this.hasError = true;
+          this.errorMessage = `Cho phép tối đa ${this.maxLength} ký tự`;
+        }
+      } else if (this.type === 'number' && typeof this.value === 'number') {
+        if (this.min !== null && this.value < this.min) {
+          this.hasError = true;
+          this.errorMessage = `Giá trị yêu cầu lớn hơn hoặc bằng ${this.min}`;
+        } else if (this.max !== null && this.value > this.max) {
+          this.hasError = true;
+          this.errorMessage = `Giá trị yêu cầu bé hơn hoặc bằng ${this.max}`;
+        }
+      }
+      setTimeout(() => {
+        this.hasError = false;
+      }, 3000);
+  
+      // Emit kết quả validation lên cha
+      this.validationResult.emit(!this.hasError);
+      return !this.hasError;
+    }
+  }
+  
+  /*--
+  <input
+    label = "Tên input"
+    [type]="type"
+    [placeholder]="placeholder"
+    [required]="required"
+    [minLength]="minLength"
+    [maxLength]="maxLength"
+    [min]="min"
+    [max]="max"
+    [(ngModel)]="value"
+    (input)="onInputChange(value)"
+    (focus)="onFocusHandler()"
+    (blur)="onBlurHandler()" 
+    (keydown)="onKeyDown($event)" 
+  />
+  --*/
+  import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnChanges,
+    SimpleChanges,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  
+  @Component({
+    selector: 'app-pagination',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './pagination.component.html',
+    styleUrls: ['./pagination.component.scss'],
+  })
+  export class PaginationComponent implements OnChanges {
+    @Input() totalData: number = 0;
+    @Input() amountDataPerPage: number = 10;
+    @Input() currentPageIndex: number = 1;
+    @Output() onPageChange = new EventEmitter<number>();
+  
+    totalPages: number = 0;
+    canPressStart: boolean = false;
+    canPressEnd: boolean = false;
+  
+    ngOnChanges(changes: SimpleChanges) {
+      if (changes['totalData'] || changes['amountDataPerPage']) {
+        this.totalPages = Math.ceil(this.totalData / this.amountDataPerPage);
+      }
+      if (changes['currentPageIndex']) {
+        this.currentPageIndex = changes['currentPageIndex'].currentValue || 1;
+      }
+      this.checkPress();
+    }
+  
+    pageIndex(pageNumber: number) {
+      if (
+        pageNumber >= 1 &&
+        pageNumber <= this.totalPages &&
+        pageNumber !== this.currentPageIndex
+      ) {
+        this.currentPageIndex = pageNumber; // Cập nhật UI
+        this.onPageChange.emit(this.currentPageIndex); // Gửi sự kiện ra ngoài
+        this.checkPress();
+      }
+    }
+  
+    generatePageNumbers(): (number | string)[] {
+      const pages: (number | string)[] = [];
+      if (this.totalPages <= 1) return pages;
+  
+      pages.push(1);
+  
+      if (this.totalPages >= 10) {
+        if (this.currentPageIndex <= 5) {
+          for (let i = 2; i <= Math.min(7, this.totalPages - 1); i++) {
+            pages.push(i);
+          }
+          if (this.totalPages > 8) pages.push('...');
+        } else if (
+          this.currentPageIndex > 5 &&
+          this.currentPageIndex < this.totalPages - 4
+        ) {
+          pages.push('...');
+          for (
+            let i = this.currentPageIndex - 2;
+            i <= this.currentPageIndex + 2;
+            i++
+          ) {
+            pages.push(i);
+          }
+          pages.push('...');
+        } else {
+          pages.push('...');
+          for (let i = this.totalPages - 6; i < this.totalPages; i++) {
+            pages.push(i);
+          }
+        }
+      } else {
+        for (let i = 2; i <= Math.min(8, this.totalPages - 1); i++) {
+          pages.push(i);
+        }
+      }
+  
+      if (this.totalPages > 1) pages.push(this.totalPages);
+      return pages;
+    }
+  
+    checkPress() {
+      this.canPressStart = this.currentPageIndex > 1;
+      this.canPressEnd = this.currentPageIndex < this.totalPages;
+    }
+  }
+  import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnInit,
+    OnDestroy,
+  } from '@angular/core';
+  import { CommonModule } from '@angular/common';
+  
+  @Component({
+    selector: 'app-warning-modal',
+    templateUrl: './warning-modal.component.html',
+    styleUrls: ['./warning-modal.component.scss'],
+    standalone: true,
+    imports: [CommonModule],
+  })
+  export class WarningModalComponent implements OnInit, OnDestroy {
+    @Input() message: string = '';
+    @Input() type: 'success' | 'warning' | 'error' | 'info' = 'info';
+    @Input() title: string = '';
+    @Input() confirmText: string = 'Confirm';
+    @Input() cancelText: string = 'Cancel';
+    @Input() autoCloseTimeout?: number;
+    @Input() isLoading: boolean = false; // New input property
+  
+    @Output() confirm = new EventEmitter<void>();
+    @Output() cancel = new EventEmitter<void>();
+    @Output() closeEvent = new EventEmitter<void>();
+  
+    isVisible: boolean = false;
+    private timeoutId?: number;
+  
+    ngOnInit() {
+      this.isVisible = true;
+      this.setupKeyboardListeners();
+      this.setupAutoClose();
+    }
+  
+    ngOnDestroy() {
+      this.removeKeyboardListeners();
+      if (this.timeoutId) {
+        window.clearTimeout(this.timeoutId);
+      }
+    }
+  
+    private setupKeyboardListeners() {
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
+  
+    private removeKeyboardListeners() {
+      document.removeEventListener('keydown', this.handleKeyDown);
+    }
+  
+    private handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        this.closeModal();
+      }
+    };
+  
+    private setupAutoClose() {
+      if (this.autoCloseTimeout) {
+        this.timeoutId = window.setTimeout(() => {
+          this.closeModal();
+        }, this.autoCloseTimeout);
+      }
+    }
+  
+    closeOnBackdrop(event: MouseEvent) {
+      if (event.target === event.currentTarget) {
+        this.closeModal();
+      }
+    }
+  
+    closeModal() {
+      this.closeEvent.emit();
+    }
+  
+    onConfirm() {
+      if (!this.isLoading) {
+        this.confirm.emit();
+      }
+    }
+  
+    onCancel() {
+      this.cancel.emit();
+    }
+  }
+  import { IUser, IThumbnailCard } from './InterfaceData';
+
+export type ApiResponse = {
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+  data: IUser[];
+};
+
+export type ApiVideoFakeResponse = {
+  data: IThumbnailCard[];
+};
+
+export type SERVER_RESPONSE<T> = {
+  code: number;
+  message: string;
+  status: string;
+  result: T;
+};
+import {
+    LucideAngularModule,
+    Menu,
+    Home,
+    Film,
+    History,
+    Filter,
+    Save,
+    X,
+  } from 'lucide-angular';
+  
+  //lưu data fix cứng
+  export const dataAvatarOptions = [
+    {
+      id: 1,
+      label: 'Đăng nhập',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>',
+      role: {
+        ROLE_GUEST: true,
+        ROLE_USER: false,
+        ROLE_MODERATOR: false,
+        ROLE_ADMIN: false,
+      },
+    },
+    {
+      id: 2,
+      label: 'Đăng ký',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ROLE_USER-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>',
+      role: {
+        ROLE_GUEST: true,
+        ROLE_USER: false,
+        ROLE_MODERATOR: false,
+        ROLE_ADMIN: false,
+      },
+    },
+    {
+      id: 3,
+      label: 'Đăng ký cung cấp phim',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clapperboard"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>',
+      role: {
+        ROLE_GUEST: true,
+        ROLE_USER: true,
+        ROLE_MODERATOR: false,
+        ROLE_ADMIN: false,
+      },
+    },
+    {
+      id: 4,
+      label: 'Đăng xuất',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>',
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      id: 5,
+      label: 'Quản lý tài khoản',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ROLE_USER-round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      id: 6,
+      label: 'Đổi mật khẩu',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>',
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      id: 7,
+      label: 'Đồng bộ lịch sử xem',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-ccw-dot"><path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.3L3 8"/><path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><circle cx="12" cy="12" r="1"/></svg>',
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      id: 8,
+      label: 'Đồng bộ phim đã lưu',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-compare-arrows"><circle cx="5" cy="6" r="3"/><path d="M12 6h5a2 2 0 0 1 2 2v7"/><path d="m15 9-3-3 3-3"/><circle cx="19" cy="18" r="3"/><path d="M12 18H7a2 2 0 0 1-2-2V9"/><path d="m9 15 3 3-3 3"/></svg>',
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      id: 9,
+      label: 'Dịch vụ & Thanh toán',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hand-coins"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></svg>',
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+  ];
+  
+  export const urlImage = {
+    mainBanner:
+      'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/121a65b9-a726-4c9c-b7e2-d19967793dbf/dgfpm50-98b673b9-1204-462a-8962-ffe5ad5a0ba1.png/v1/fill/w_1280,h_427,q_80,strp/anime_banner_by_aerobtw_dgfpm50-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NDI3IiwicGF0aCI6IlwvZlwvMTIxYTY1YjktYTcyNi00YzljLWI3ZTItZDE5OTY3NzkzZGJmXC9kZ2ZwbTUwLTk4YjY3M2I5LTEyMDQtNDYyYS04OTYyLWZmZTVhZDVhMGJhMS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.9lNuKt9wzA98cNOJnUXWWtzfDaFqVMGkUfuIeEc6wSg',
+    secondBanner: {
+      imgFirst:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvo4LP95pGqEE3Pxmcdcymu3ufwayB4KrFZg&s',
+      imgSecond:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYVRxRldhjbf-azk_T-Rz8HCHNh_kZ2jQl7A&s',
+      imgThird:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFyY9dSRty0y-wtxET4SyICGH4bnpV1XGv-w&s',
+    },
+  };
+  
+  export const sidebarOptionsData = [
+    {
+      path: '/',
+      label: 'Trang chủ',
+      icon: Home,
+      role: {
+        ROLE_GUEST: true,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      path: '/film-follow',
+      label: 'Phim đã lưu',
+      icon: Save,
+      role: {
+        ROLE_GUEST: true,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      path: '/history-watch',
+      label: 'Lịch sử xem',
+      icon: History,
+      role: {
+        ROLE_GUEST: true,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      path: '/filter-advance',
+      label: 'Lọc phim',
+      icon: Filter,
+      role: {
+        ROLE_GUEST: true,
+        ROLE_USER: true,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      path: '/uploaded-film',
+      label: 'Phim đã đăng',
+      icon: Filter,
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: false,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      path: '/schedule-upload',
+      label: 'Lịch đăng tải',
+      icon: Filter,
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: false,
+        ROLE_MODERATOR: true,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      path: '/approved-film',
+      label: 'Duyệt phim',
+      icon: Filter,
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: false,
+        ROLE_MODERATOR: false,
+        ROLE_ADMIN: true,
+      },
+    },
+    {
+      path: '/user-management',
+      label: 'Quản lý User',
+      icon: Filter,
+      role: {
+        ROLE_GUEST: false,
+        ROLE_USER: false,
+        ROLE_MODERATOR: false,
+        ROLE_ADMIN: true,
+      },
+    },
+  ];
+  import { NotificationType } from '../components/regular/alert-notification/alert-notification.component';
+
+export interface INotification {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  timestamp: Date;
+}
+
+export interface IUpdateProfileAccount {
+  displayName: string;
+  fullName: string;
+  gender: boolean | null;
+  bio: string;
+  phoneNumber: string;
+}
+
+export interface IUser {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  avatar: string;
+}
+
+export interface IGuestRequestModerator {
+  username: string;
+  password: string;
+  email: string;
+  fullName: string;
+  cccd: string;
+  phoneNumber: string;
+}
+
+export interface IUserRequestModerator {
+  fullName: string;
+  cccd: string;
+  phoneNumber: string;
+}
+
+export interface IOptionItem {
+  id: number | string;
+  label: string;
+  icon: string;
+  role: {
+    ROLE_GUEST: boolean;
+    ROLE_USER: boolean;
+    ROLE_ADMIN: boolean;
+    ROLE_MODERATOR: boolean;
+  };
+}
+
+export interface IListThumbnails {
+  category: string;
+  videos: IThumbnailCard[];
+}
+
+export interface IThumbnailCard {
+  id: number;
+  title: string;
+  videoUrl: string;
+  thumbnail: string;
+  description: string;
+  duration: string;
+  ep: number;
+  total_ep: number;
+  rating: number;
+  view: number;
+}
+
+export interface IUrlImage {
+  mainBanner: string;
+  secondBanner: {
+    imgFirst: string;
+    imgSecond: string;
+    imgThird: string;
+  };
+}
+
+export interface ITagFilm {
+  value: number;
+  label: string;
+  disabled?: boolean;
+}
+
+export interface IOptionDropType {
+  value: any;
+  label: string;
+  disabled?: boolean;
+}
+
+export interface INotice {
+  id: number;
+  title: string;
+  message: string;
+  time: string;
+  seen: boolean;
+}
+
+export interface IMovieItemField {
+  label: string;
+  value: string;
+}
+
+export interface IMovieItemSearch {
+  imageUrl: string;
+  title: string;
+  fields: IMovieItemField[];
+}
+
+export interface IDataLoginUsername {
+  username: string;
+  password: string;
+}
+
+export interface IDataLoginEmail {
+  username: string;
+  password: string;
+}
+
+export interface IDataRegisterUser {
+  username: string;
+  email: string;
+  password: string;
+}
+export interface ILoginResponse {
+    username: string;
+    email: string;
+    role: string;
+    accessToken: string;
+    tokenAccessType: string;
+    tokenId: string;
+    refreshValue: string;
+    expiryTime: string; // Hoặc Date nếu bạn muốn dùng kiểu Date
+    isAuthenticated: boolean;
+  }
+  
+  export interface IFullInfoAccountRessponse {
+    username: string;
+    email: string | null;
+    role: string;
+    displayName: string | null;
+    fullName: string | null;
+    gender: boolean | null;
+    bio: string | null;
+    cccd: string | null;
+    phoneNumber: string | null;
+    isActive: boolean;
+    lastLogin: string; // ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+    gpValue: number; // BigDecimal tương đương với number trong TS
+    createdAt: string; // ISO 8601 format
+    updatedAt: string; // ISO 8601 format
+  }
+  
+  export interface IModeratorRequestResponse {
+    id: string;
+    user_username: string;
+    requestDate: string;
+    status: 'pending' | 'approved' | 'rejected';
+    createdAt: string;
+  }
+  
+  export interface ILogoutResponse {
+    selectIsAuthenticated: boolean;
+  }
+  import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MovieInfoComponent } from '../../components/multi-structure/movie-info/movie-info.component';
+
+@Component({
+  selector: 'app-film-details',
+  standalone: true,
+  imports: [CommonModule, MovieInfoComponent],
+  templateUrl: './film-details.component.html',
+  styleUrls: ['./film-details.component.scss'],
+})
+export class FilmDetailsComponent implements OnInit {
+  movie: any = null;
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      const movieId = params.get('id');
+      console.log('Movie ID from route:', movieId);
+      this.fetchMovieData(movieId);
+    });
+  }
+
+  fetchMovieData(movieId: string | null) {
+    // Fake API data
+    console.log('Fetching movie for ID:', movieId); // Debug
+
+    if (!movieId) return;
+    const fakeMovies = [
+      {
+        id: '2',
+        title: 'Dược sư tự sự',
+        description: 'Cuộc hành trình nàng mèo xinh đẹp ...',
+        background:
+          'https://cdn.animevietsub.one/data/banner/2023/08/27/animevsub-G71homxcKc.jpg',
+        thumbnail:
+          'https://cdn.animevietsub.one/data/poster/2025/01/17/animevsub-0WxXh41w8K.jpg',
+        totalView: 10000000,
+        newEpisodes: [15, 16, 17],
+        rating: 8.5,
+        genres: ['Hành động', 'Phiêu lưu'],
+        followers: 5000000,
+        status: 'Đang phát sóng',
+        country: 'Nhật Bản',
+        studio: 'Toei Animation',
+        schedule: 'Chủ Nhật hàng tuần',
+      },
+      {
+        id: '6',
+        title: 'Naruto Shippuden',
+        description: 'Câu chuyện của Naruto sau 2 năm huấn luyện.',
+        background:
+          'https://cdn.animevietsub.one/data/banner/2024/11/30/animevsub-CREj0b58x6.png',
+        thumbnail:
+          'https://cdn.animevietsub.one/data/poster/2024/11/30/animevsub-8tbxYXLjm5.jpg',
+        totalView: 12000000,
+        newEpisodes: [450, 451, 452],
+        rating: 9.0,
+        genres: ['Hành động', 'Phiêu lưu'],
+        followers: 5000000,
+        status: 'Hoàn thành',
+        country: 'Nhật Bản',
+        studio: 'Pierrot',
+        schedule: 'Hoàn tất',
+      },
+    ];
+
+    this.movie = fakeMovies.find((movie) => movie.id === movieId) || null;
+    console.log('Found movie:', this.movie); // Kiểm tra kết quả tìm kiếm
+  }
+}
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/config-service/api.service';
+import { API_CONFIG } from '../../services/config-service/config';
+import { IListThumbnails, IThumbnailCard } from '../../models/InterfaceData';
+import { MovieCardComponent } from '../../components/multi-structure/movie-card/movie-card.component';
+import { IUrlImage } from '../../models/InterfaceData';
+import { urlImage } from '../../models/DataRoot';
+import { MoviesService } from '../../services/api-service/movies.service';
+import { FooterComponent } from '../../components/layout/footer/footer.component';
+import { InteractiveButtonComponent } from '../../components/regular/button/button.component';
+import { Route, Router, RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  imports: [
+    CommonModule,
+    MovieCardComponent,
+    FooterComponent,
+    InteractiveButtonComponent,
+  ], // Import MovieCardComponent
+})
+export class HomeComponent implements OnInit {
+  videos: IListThumbnails[] = []; // Mảng danh mục chứa danh sách video
+  topvideos: IThumbnailCard[] = [];
+  homeBanner: IUrlImage = urlImage;
+
+  constructor(private MoviesService: MoviesService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.MoviesService.getCategoryList().subscribe((response) => {
+      this.videos = response.result || [];
+
+      // Lấy danh sách videos từ category "top xem nhiều nhất"
+      const topCategory = this.videos.find(
+        (category) => category.category === 'Top xem nhiều nhất'
+      );
+
+      // Chỉ lấy danh sách videos (IThumbnailCard[])
+      this.topvideos = topCategory ? topCategory.videos : [];
+    });
+  }
+
+  onClickShowMore(categoryName: string) {
+    this.router.navigate(['/category', categoryName]);
+  }
+}
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ApiService } from '../../services/config-service/api.service';
+import { API_CONFIG } from '../../services/config-service/config';
+import { IThumbnailCard } from '../../models/InterfaceData';
+import { CommonModule } from '@angular/common';
+import { CommentSectionComponent } from '../../components/multi-structure/comment-section/comment-section.component';
+import { MoviesService } from '../../services/api-service/movies.service';
+
+@Component({
+  selector: 'app-play-page',
+  templateUrl: './play-page.component.html',
+  styleUrls: ['./play-page.component.scss'],
+  imports: [CommonModule, CommentSectionComponent],
+})
+export class PlayPageComponent implements OnInit {
+  video: IThumbnailCard | undefined;
+  safeVideoUrl: SafeResourceUrl | null = null;
+
+  constructor(
+    private route: ActivatedRoute,
+    private MoviesService: MoviesService,
+    private sanitizer: DomSanitizer
+  ) {}
+
+  ngOnInit(): void {
+    // Lấy ID từ URL
+    const videoId = Number(this.route.snapshot.paramMap.get('id'));
+
+    // Gọi API để lấy thông tin video theo ID
+    this.MoviesService.getCategoryList().subscribe({
+      next: (videos) => {
+        this.video = videos.result
+          .flatMap((category) => category.videos) // Lấy tất cả video từ danh mục
+          .find((v) => String(v.id) === String(videoId)); // Tìm video có id phù hợp
+
+        if (this.video && this.video.videoUrl) {
+          const embedUrl = this.convertYouTubeUrl(this.video.videoUrl);
+          this.safeVideoUrl =
+            this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+        }
+      },
+      error: (error) => {
+        console.error('Lỗi khi lấy dữ liệu video:', error);
+      },
+    });
+  }
+
+  // 🛠 Chuyển đổi URL YouTube sang định dạng nhúng
+  private convertYouTubeUrl(url: string): string {
+    const youtubeRegex =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+    const match = url.match(youtubeRegex);
+
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    return url;
+  }
+}
+import { Component } from '@angular/core';
+import { UserProfileComponent } from '../../components/multi-structure/user-profile/user-profile.component';
+import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { openForm } from '../../store/open-form-state/form.actions';
+
+@Component({
+  selector: 'app-profile-account',
+  templateUrl: `./profile-account.component.html`,
+  styleUrls: ['./profile-account.component.scss'],
+  imports: [CommonModule, UserProfileComponent],
+})
+export class ProfileAccountComponent {
+  constructor(private store: Store) {}
+
+  handleOpenEditProfile() {
+    this.store.dispatch(openForm({ formType: 'modal-update-info-account' }));
+  }
+}
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IListThumbnails, IThumbnailCard } from '../../models/InterfaceData';
+import { MoviesService } from '../../services/api-service/movies.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MovieCardComponent } from '../../components/multi-structure/movie-card/movie-card.component';
+import { PaginationComponent } from '../../components/regular/pagination/pagination.component';
+
+@Component({
+  selector: 'app-recommend-list-film',
+  standalone: true,
+  imports: [CommonModule, MovieCardComponent, PaginationComponent],
+  templateUrl: './recommend-list-film.component.html',
+  styleUrl: './recommend-list-film.component.scss',
+})
+export class RecommendListFilmComponent {
+  categoryName: string = '';
+  videos: IThumbnailCard[] = [];
+  currentPageIndex: number = 1;
+  itemsPerPage: number = 8;
+  totalData: number = 0;
+
+  constructor(
+    private route: ActivatedRoute,
+    private moviesService: MoviesService,
+    private router: Router
+  ) {}
+
+  toggleBackToHome() {
+    this.router.navigate(['/']);
+  }
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      this.categoryName = params.get('categoryName') || '';
+
+      this.moviesService.getCategoryList().subscribe((response) => {
+        const category = response.result.find(
+          (item: IListThumbnails) => item.category === this.categoryName
+        );
+        this.videos = category ? category.videos : [];
+        this.totalData = this.videos.length; // Gán tổng số dữ liệu
+      });
+    });
+  }
+
+  onPageChange(newPage: number) {
+    this.currentPageIndex = newPage;
+  }
+}
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'formatView',
+  standalone: true, // Hỗ trợ standalone component
+})
+export class FormatViewPipe implements PipeTransform {
+  transform(value: number): string {
+    if (!value) return '0';
+    return value.toLocaleString('en-US'); // Thêm dấu , vào hàng nghìn
+  }
+}
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { ApiService } from '../config-service/api.service';
+import { API_CONFIG } from '../config-service/config';
+import {
+  IDataLoginEmail,
+  IDataLoginUsername,
+  IDataRegisterUser,
+  IGuestRequestModerator,
+  IUserRequestModerator,
+} from '../../models/InterfaceData';
+import { SERVER_RESPONSE } from '../../models/ApiResponse';
+import {
+  IFullInfoAccountRessponse,
+  ILoginResponse,
+  ILogoutResponse,
+  IModeratorRequestResponse,
+} from '../../models/InterfaceResponse';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  constructor(private api: ApiService) {}
+
+  register(dataRegister: IDataRegisterUser) {
+    return this.api.post<SERVER_RESPONSE<ILoginResponse>>(
+      API_CONFIG.ENDPOINTS.POST_REGISTER,
+      dataRegister
+    );
+  }
+
+  loginByUsername(
+    dataLogin: IDataLoginUsername
+  ): Observable<SERVER_RESPONSE<ILoginResponse>> {
+    return this.api.post<SERVER_RESPONSE<ILoginResponse>>(
+      API_CONFIG.ENDPOINTS.POST_LOGIN_USERNAME,
+      dataLogin
+    );
+  }
+
+  loginByEmail(dataLogin: IDataLoginEmail) {
+    return this.api.post<SERVER_RESPONSE<ILoginResponse>>(
+      API_CONFIG.ENDPOINTS.POST_LOGIN_EMAIL,
+      dataLogin
+    );
+  }
+
+  logout(refresh_token: string) {
+    return this.api.post<SERVER_RESPONSE<ILogoutResponse>>(
+      API_CONFIG.ENDPOINTS.POST_LOGOUT,
+      { refresh_token }
+    );
+  }
+
+  checktoken() {
+    return this.api.get<SERVER_RESPONSE<ILogoutResponse>>(
+      API_CONFIG.ENDPOINTS.GET_CHECK_TOKEN
+    );
+  }
+
+  requestModeratorForGuest(dataRegisterModerator: IGuestRequestModerator) {
+    return this.api.post<SERVER_RESPONSE<IModeratorRequestResponse>>(
+      API_CONFIG.ENDPOINTS.POST_GUEST_REQ_MODERATOR,
+      dataRegisterModerator
+    );
+  }
+
+  requestModeratorForUser(dataRegisterModerator: IUserRequestModerator) {
+    return this.api.post<SERVER_RESPONSE<IModeratorRequestResponse>>(
+      API_CONFIG.ENDPOINTS.POST_USER_REQ_MODERATOR,
+      dataRegisterModerator
+    );
+  }
+
+  getModeratorProfile() {
+    return this.api.get<SERVER_RESPONSE<IUserRequestModerator>>(
+      API_CONFIG.ENDPOINTS.GET_MODERATOR_PROFILE
+    );
+  }
+
+  getAvatar(type: 'small' | 'tiny' | 'original'): Observable<Blob> {
+    return this.api.getBlob(API_CONFIG.ENDPOINTS.GET_ACCOUNT_AVATAR(type));
+  }
+
+  getBackground(type: 'small' | 'tiny' | 'original'): Observable<Blob> {
+    return this.api.getBlob(API_CONFIG.ENDPOINTS.GET_ACCOUNT_BACKGROUND(type));
+  }
+
+  uploadBackground(file: File): Observable<any> {
+    return this.api.uploadFile(
+      API_CONFIG.ENDPOINTS.POST_UPLOAD_BACKGROUND,
+      file
+    );
+  }
+
+  uploadAvatar(file: File): Observable<any> {
+    return this.api.uploadFile(API_CONFIG.ENDPOINTS.POST_UPLOAD_AVATAR, file);
+  }
+
+  getProfile() {
+    return this.api.get<SERVER_RESPONSE<IFullInfoAccountRessponse>>(
+      API_CONFIG.ENDPOINTS.GET_INFO_ACCOUNT
+    );
+  }
+}
+import { Injectable } from '@angular/core';
+import { ApiService } from '../config-service/api.service';
+import { API_CONFIG } from '../config-service/config';
+import {
+  IListThumbnails,
+  IMovieItemSearch,
+  INotice,
+  ITagFilm,
+} from '../../models/InterfaceData';
+import { ApiResponse, SERVER_RESPONSE } from '../../models/ApiResponse';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class MoviesService {
+  constructor(private api: ApiService) {}
+
+  getMovies() {
+    return this.api.get(API_CONFIG.ENDPOINTS.MOVIES);
+  }
+
+  getTagFilm() {
+    return this.api.get<SERVER_RESPONSE<ITagFilm[]>>(
+      API_CONFIG.ENDPOINTS.GET_TAGS,
+      'SECONDARY_API'
+    );
+  }
+
+  getCategoryList() {
+    return this.api.get<SERVER_RESPONSE<IListThumbnails[]>>(
+      API_CONFIG.ENDPOINTS.VIDEO,
+      'SECONDARY_API'
+    );
+  }
+  postMovieItemSearch(searchText: string) {
+    return this.api.post<SERVER_RESPONSE<IMovieItemSearch[]>>(
+      API_CONFIG.ENDPOINTS.POST_MOVIES_SEARCH,
+      { searchText },
+      'SECONDARY_API'
+    );
+  }
+}
+import { Injectable } from '@angular/core';
+import { ApiService } from '../config-service/api.service';
+import { API_CONFIG } from '../config-service/config';
+import { INotice } from '../../models/InterfaceData';
+import { SERVER_RESPONSE } from '../../models/ApiResponse';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class NoticeService {
+  constructor(private api: ApiService) {}
+
+  getNotices() {
+    return this.api.get<SERVER_RESPONSE<INotice[]>>(
+      API_CONFIG.ENDPOINTS.GET_NOTICES,
+      'SECONDARY_API'
+    );
+  }
+}
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { API_CONFIG } from './config';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ApiService {
+  constructor(private http: HttpClient) {}
+
+  // Hàm lấy headers với token động
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${sessionStorage.getItem('token') || ''}`,
+    });
+  }
+
+  // Hàm GET - Cho phép chọn API_URL động
+  get<T>(
+    endpoint: string,
+    apiType: 'MAIN_API' | 'SECONDARY_API' = 'MAIN_API'
+  ): Observable<T> {
+    const url = `${API_CONFIG.BASE_URLS[apiType]}${endpoint}`;
+    return this.http.get<T>(
+      url,
+      // { withCredentials: true }
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Hàm POST
+  post<T>(
+    endpoint: string,
+    body: any,
+    apiType: 'MAIN_API' | 'SECONDARY_API' = 'MAIN_API'
+  ): Observable<T> {
+    const url = `${API_CONFIG.BASE_URLS[apiType]}${endpoint}`;
+    return this.http.post<T>(
+      url,
+      body,
+      // { withCredentials: true }
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Hàm PUT
+  put<T>(
+    endpoint: string,
+    body: any,
+    apiType: 'MAIN_API' | 'SECONDARY_API' = 'MAIN_API'
+  ): Observable<T> {
+    const url = `${API_CONFIG.BASE_URLS[apiType]}${endpoint}`;
+    return this.http.put<T>(
+      url,
+      body,
+      // { withCredentials: true }
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // Hàm DELETE
+  delete<T>(
+    endpoint: string,
+    apiType: 'MAIN_API' | 'SECONDARY_API' = 'MAIN_API'
+  ): Observable<T> {
+    const url = `${API_CONFIG.BASE_URLS[apiType]}${endpoint}`;
+    return this.http.delete<T>(
+      url,
+      // { withCredentials: true }
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getBlob(
+    endpoint: string,
+    apiType: 'MAIN_API' | 'SECONDARY_API' = 'MAIN_API'
+  ): Observable<Blob> {
+    const url = `${API_CONFIG.BASE_URLS[apiType]}${endpoint}`;
+    return this.http.get(url, {
+      headers: this.getHeaders(),
+      responseType: 'blob',
+      // withCredentials: true,
+    });
+  }
+
+  uploadFile(
+    endpoint: string,
+    file: File,
+    apiType: 'MAIN_API' | 'SECONDARY_API' = 'MAIN_API'
+  ): Observable<any> {
+    const url = `${API_CONFIG.BASE_URLS[apiType]}${endpoint}`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('token') || ''}`,
+    });
+
+    return this.http.post(
+      url,
+      formData,
+      // { withCredentials: true }
+      { headers }
+    );
+  }
+}
+
+/*
+Hướng dẫn dùng getBlob() :
+
+this.authService.getUserAvatar('original').subscribe(
+  (blob) => {
+    const objectURL = URL.createObjectURL(blob);
+    this.userAvatarUrl = objectURL;
+  },
+  (error) => {
+    console.error('Lỗi khi tải ảnh:', error);
+  }
+);
+
+*/
+
+/* Hướng dẫn dùng UploadFile
+
+uploadBackground(event: any) {
+  const file = event.target.files[0];
+  if (file) {
+    this.authService.uploadBackground(file).subscribe({
+      next: (res) => {
+        console.log('Upload thành công:', res);
+        alert('Tải ảnh lên thành công!');
+      },
+      error: (err) => {
+        console.error('Lỗi upload:', err);
+        alert('Tải ảnh lên thất bại!');
+      },
+    });
+  }
+}
+
+<input type="file" (change)="uploadBackground($event)" />
+
+*/
+export const API_CONFIG = {
+    BASE_URLS: {
+      MAIN_API: 'http://192.168.1.220:8081/animeh/api',
+      SECONDARY_API: 'http://localhost:3000',
+    },
+    ENDPOINTS: {
+      MOVIES: '/movies',
+      VIDEO: '/list_film',
+      GET_NOTICES: '/notices',
+      GET_TAGS: '/tags',
+      GET_TOP4ANIMES: '/animes/top4',
+      GET_MODERATOR_PROFILE: '/moderator-register/profile',
+      GET_ACCOUNT_AVATAR: (type: 'small' | 'tiny' | 'original') =>
+        `/user/avatar?size=${type}`,
+      GET_ACCOUNT_BACKGROUND: (type: 'small' | 'tiny' | 'original') =>
+        `/user/background?size=${type}`,
+      GET_INFO_ACCOUNT: '/user/profile',
+      GET_CHECK_TOKEN: '/check-token',
+      POST_MOVIES_SEARCH: '/movie_search',
+      POST_LOGIN_USERNAME: '/auth/login-username',
+      POST_LOGIN_EMAIL: '/auth/login-email',
+      POST_REGISTER: '/auth/register',
+      POST_GUEST_REQ_MODERATOR: '/moderator-register/guest',
+      POST_USER_REQ_MODERATOR: '/moderator-register/user',
+      POST_UPLOAD_BACKGROUND: '/user/upload/background',
+      POST_UPLOAD_AVATAR: '/user/upload/avatar',
+      POST_LOGOUT: '/user-logout',
+      PUT_UPDATE_INFO_ACCOUNT: '/user',
+    },
+    HEADERS: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${sessionStorage.getItem('token') || ''}`,
+    },
+  };
+  import { createAction } from '@ngrx/store';
+
+export const login = createAction('[Auth] Login');
+export const logout = createAction('[Auth] Logout');
+import { createReducer, on } from '@ngrx/store';
+import { login, logout } from './auth.actions';
+
+export interface AuthState {
+  isAuthenticated: boolean;
+}
+
+const initialState: AuthState = {
+  isAuthenticated: false,
+};
+
+export const authReducer = createReducer(
+  initialState,
+  on(login, (state) => ({ ...state, isAuthenticated: true })),
+  on(logout, (state) => ({ ...state, isAuthenticated: false }))
+);
+import { createSelector, createFeatureSelector } from '@ngrx/store';
+import { AuthState } from './auth.reducer';
+
+export const selectAuthState = createFeatureSelector<AuthState>('auth');
+export const selectIsAuthenticated = createSelector(
+  selectAuthState,
+  (state) => state.isAuthenticated
+);
+import { createAction, props } from '@ngrx/store';
+import { INotification } from '../../models/InterfaceData';
+
+// ✅ Thêm thông báo
+export const addNotification = createAction(
+  '[Notification] Add',
+  props<{ notification: INotification }>()
+);
+
+// ✅ Xóa thông báo cụ thể theo id
+export const removeNotification = createAction(
+  '[Notification] Remove',
+  props<{ id: string }>()
+);
+
+// ✅ Xóa tất cả thông báo
+export const clearNotifications = createAction('[Notification] Clear All');
+import { createReducer, on } from '@ngrx/store';
+import {
+  addNotification,
+  removeNotification,
+  clearNotifications,
+} from './notification.action';
+
+// Định nghĩa kiểu dữ liệu cho thông báo
+export interface INotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'success' | 'warning' | 'error' | 'info';
+  timestamp: Date;
+}
+
+// Trạng thái ban đầu của notifications (mảng rỗng)
+export interface INotificationState {
+  notifications: INotification[];
+}
+
+const initialState: INotificationState = {
+  notifications: [],
+};
+
+// ✅ Reducer xử lý trạng thái notifications
+export const notificationReducer = createReducer(
+  initialState,
+
+  // Thêm thông báo vào danh sách
+  on(addNotification, (state, { notification }) => ({
+    ...state,
+    notifications: [...state.notifications, notification],
+  })),
+
+  // Xóa thông báo theo id
+  on(removeNotification, (state, { id }) => ({
+    ...state,
+    notifications: state.notifications.filter((notif) => notif.id !== id),
+  })),
+
+  // Xóa tất cả thông báo
+  on(clearNotifications, (state) => ({
+    ...state,
+    notifications: [],
+  }))
+);
+import { createSelector, createFeatureSelector } from '@ngrx/store';
+import { INotificationState } from './notification.reducer';
+
+// Lấy state của notification
+export const selectNotificationState =
+  createFeatureSelector<INotificationState>('notification');
+
+// ✅ Lấy danh sách thông báo
+export const selectNotifications = createSelector(
+  selectNotificationState,
+  (state) => state.notifications
+);
+import { createAction, props } from '@ngrx/store';
+
+export const openForm = createAction(
+  '[Form] Open',
+  props<{
+    formType:
+      | 'login'
+      | 'register'
+      | 'modal-warning'
+      | 're-login-required-form'
+      | 'reg-moderator'
+      | 'modal-update-info-account';
+  }>()
+);
+
+export const closeForm = createAction(
+  '[Form] Close',
+  props<{
+    formType?:
+      | 'login'
+      | 'register'
+      | 'modal-warning'
+      | 're-login-required-form'
+      | 'reg-moderator'
+      | 'modal-update-info-account';
+  }>()
+);
+
+// nhớ thêm mới type form ở đây
+import { createReducer, on } from '@ngrx/store';
+import { openForm, closeForm } from './form.actions';
+
+export interface FormState {
+  openedForms: { [key: string]: boolean }; // Cho phép nhiều form cùng mở
+}
+
+const initialState: FormState = {
+  openedForms: {}, // Không có form nào mở ban đầu
+};
+
+export const formReducer = createReducer(
+  initialState,
+  on(openForm, (state, { formType }) => ({
+    ...state,
+    openedForms: { ...state.openedForms, [formType]: true }, // Mở form cụ thể
+  })),
+  on(closeForm, (state, { formType }) => {
+    const updatedForms = { ...state.openedForms };
+    if (formType) {
+      delete updatedForms[formType]; // Chỉ xóa form cụ thể
+    } else {
+      Object.keys(updatedForms).forEach((key) => delete updatedForms[key]); // Xóa tất cả form nếu không có formType
+    }
+    return { ...state, openedForms: updatedForms };
+  })
+);
+
+//trước khi dùng giá trị form mới nhớ thêm type form mới tại form.action.ts
+
+/* 
+- cách lấy giá trị vào component:
+
+  export class AppComponent {
+    openedForms$: Observable<{ [key: string]: boolean }>;
+
+    constructor(private store: Store) {
+      this.openedForms$ = this.store.select(selectOpenedForms);
+    }
+  }
+
+
+- thay đổi hoặc thêm giá trị tại component:
+ => mở:
+ this.store.dispatch(openForm({ formType: 'login' }));
+ this.store.dispatch(openForm({ formType: 'register' }));
+ => đóng:
+ this.store.dispatch(closeForm({ formType: 'login' }));
+ this.store.dispatch(closeForm({ formType: null })); // Hoặc không truyền formType
+
+
+
+- minh hoạ giá trị:
+  {
+    openedForms: {
+      login: true,
+      register: true
+    }
+  }
+
+- kiểm tra trạng thái:
+  <app *ngIf="(openedForms$ | async)?.['login']"/>
+  <app *ngIf="(openedForms$ | async)?.['register']"/>
+
+*/
+import { createSelector, createFeatureSelector } from '@ngrx/store';
+import { FormState } from './form.reducer';
+
+export const selectFormState = createFeatureSelector<FormState>('form');
+
+export const selectOpenedForms = createSelector(
+  selectFormState,
+  (state) => state.openedForms
+);
+import { createAction, props } from '@ngrx/store';
+
+export const toggleState = createAction(
+  '[UI] Toggle State',
+  props<{ key: string; value: boolean }>()
+);
+import { createReducer, on } from '@ngrx/store';
+import { toggleState } from './ui.actions';
+
+export interface UIState {
+  [key: string]: boolean;
+}
+
+export const initialState: UIState = {
+  isReloadOptionMenu: true,
+  isReloadOptionSidebar: true,
+};
+
+export const uiReducer = createReducer(
+  initialState,
+  on(toggleState, (state, { key, value }) => ({
+    ...state,
+    [key]: value,
+  }))
+);
+import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { UIState } from './ui.reducer';
+
+export const selectUIState = createFeatureSelector<UIState>('uiState');
+
+export const selectBooleanState = (key: string) =>
+  createSelector(selectUIState, (state) => state[key] ?? false);
+<main class="main-side">
+  <div class="header-top">
+    <app-header></app-header>
+  </div>
+  <div class="body-site">
+    <div class="menu">
+      <app-sidebar (menuToggled)="toggleMenu($event)"></app-sidebar>
+    </div>
+    <div
+      class="main-content"
+      [ngStyle]="{ 'margin-left': isOpen ? '200px' : '63px' }"
+    >
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</main>
+
+<!-- Popup đăng nhập -->
+<app-popup-login-form
+  class="login-form-popup"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['login']"
+></app-popup-login-form>
+
+<!-- Popup đăng ký -->
+<app-register-form
+  class="register-form-popup"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['register']"
+></app-register-form>
+
+<!-- Popup đăng ký -->
+<app-reg-moderator
+  class="register-reg-form-popup"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['reg-moderator']"
+></app-reg-moderator>
+
+<app-edit-info-account
+  class="modal-update-info-account"
+  (close)="closePopup()"
+  [class.opened]="(isOpenForm$ | async)?.['modal-update-info-account']"
+>
+</app-edit-info-account>
+
+<!-- Danh sách thông báo -->
+<div class="notification-wrapper">
+  <app-notification-card
+    *ngFor="let notif of notifications$ | async"
+    [title]="notif.title"
+    [message]="notif.message"
+    [type]="notif.type"
+    [timestamp]="notif.timestamp"
+    (closed)="removeNotification(notif.id)"
+  ></app-notification-card>
+</div>
+
+<!-- cảnh báp đăng xuất -->
+<app-warning-modal
+  *ngIf="(isOpenForm$ | async)?.['modal-warning']"
+  title="Thông báo!"
+  message="Bạn có chắc chắn muốn đăng xuất?"
+  type="warning"
+  confirmText="Xác nhận"
+  cancelText="Hủy"
+  [isLoading]="isloading"
+  (confirm)="onConfirmLogout()"
+  (cancel)="closePopup()"
+  (closeEvent)="closePopup()"
+></app-warning-modal>
+
+<!-- yêu cầu đăng nhập lại -->
+<app-warning-modal
+  *ngIf="(isOpenForm$ | async)?.['re-login-required-form']"
+  title="Opp!"
+  message="Lỗi xác thực thông tin, yêu cầu đăng nhập lại"
+  type="error"
+  confirmText="Xác nhận"
+  [isLoading]="isloading"
+  (confirm)="reLogin()"
+  (cancel)="reLogin()"
+  (closeEvent)="reLogin()"
+></app-warning-modal>
+import { Component } from '@angular/core';
+import {
+  NavigationStart,
+  Router,
+  RouterModule,
+  RouterOutlet,
+} from '@angular/router';
+import { SidebarComponent } from './components/layout/sidebar/sidebar.component';
+import { HeaderComponent } from './components/layout/header/header.component';
+import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { LoginFormPopupComponent } from './components/popup-form/login-form/login-form.component';
+import { selectOpenedForms } from './store/open-form-state/form.selectors';
+import { closeForm, openForm } from './store/open-form-state/form.actions';
+import { RegisterFormComponent } from './components/popup-form/register-form/register-form.component';
+import { AlertNotificationComponent } from './components/regular/alert-notification/alert-notification.component';
+import { selectNotifications } from './store/notification/notification.selector';
+import { INotification } from './models/InterfaceData';
+import {
+  addNotification,
+  removeNotification,
+} from './store/notification/notification.action';
+import { WarningModalComponent } from './components/regular/popup-warning/warning-modal.component';
+import { CookieService } from 'ngx-cookie-service';
+import { login, logout } from './store/auth/auth.actions';
+import { selectBooleanState } from './store/rerender/ui.selectors';
+import { toggleState } from './store/rerender/ui.actions';
+import { RegModeratorComponent } from './components/popup-form/reg-moderator/reg-moderator.component';
+import { EditInfoAccountComponent } from './components/popup-form/edit-info-account/edit-info-account.component';
+import { ApiService } from './services/config-service/api.service';
+import { AuthService } from './services/api-service/auth.service';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    RouterModule,
+    SidebarComponent,
+    HeaderComponent,
+    CommonModule,
+    LoginFormPopupComponent,
+    RegisterFormComponent,
+    AlertNotificationComponent,
+    WarningModalComponent,
+    RegModeratorComponent,
+    EditInfoAccountComponent,
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+})
+export class AppComponent {
+  isOpen = true; // Trạng thái menu
+  isOpenForm$: Observable<{ [key: string]: boolean }>;
+  notifications$: Observable<INotification[]>;
+  token: string = '';
+  isloading: boolean = false;
+
+  constructor(
+    private store: Store,
+    private cookieService: CookieService,
+    private router: Router,
+    private authService: AuthService
+  ) {
+    this.isOpenForm$ = this.store.select(selectOpenedForms);
+    this.notifications$ = this.store.select(selectNotifications);
+    this.token = this.cookieService.get('refesh_token');
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        const token = sessionStorage.getItem('token');
+        const privateRoutes = ['profile'];
+
+        // Kiểm tra nếu người dùng đang cố gắng vào các trang cần token mà chưa đăng nhập
+        if (!token && privateRoutes.some((path) => event.url.includes(path))) {
+          console.log('⛔ Không có token, điều hướng về Home');
+          this.router.navigate(['/']);
+        }
+      }
+    });
+  }
+
+  ngOnInit() {
+    const expiryTime = this.cookieService.get('expiry_time');
+    console.log(expiryTime);
+    const tokenAccess = sessionStorage.getItem('token');
+    if (!!tokenAccess) {
+      this.authService.checktoken().subscribe({
+        next: (response) => {
+          if (response.code === 20000) {
+            this.store.dispatch(login());
+          } else {
+            this.handleOpenAlertReLogin();
+            console.log(response);
+          }
+        },
+        error: (err) => {
+          console.error('Lỗi khi kiểm tra token:', err);
+          this.handleOpenAlertReLogin();
+          console.log(err);
+        },
+      });
+    }
+  }
+
+  handleOpenAlertReLogin() {
+    this.store.dispatch(openForm({ formType: 're-login-required-form' }));
+  }
+
+  toggleMenu(isOpen: boolean) {
+    this.isOpen = isOpen;
+  }
+
+  // openPopup() {
+  //   this.store.dispatch(openForm({ formType: 'login' }));
+  //   this.store.dispatch(openForm({ formType: 'register' }));
+  // }
+
+  closePopup() {
+    this.store.dispatch(closeForm({ formType: 'login' }));
+    this.store.dispatch(closeForm({ formType: 'register' }));
+    this.store.dispatch(closeForm({ formType: 'modal-warning' }));
+    this.store.dispatch(closeForm({ formType: 'reg-moderator' }));
+    this.store.dispatch(closeForm({ formType: 're-login-required-form' }));
+  }
+
+  onConfirmLogout() {
+    this.isloading = true;
+    this.router.navigate(['']);
+    this.authService.logout(this.token).subscribe({
+      next: (response) => {
+        this.handleLogoutSuccess(response.status, response.message);
+      },
+      error: () => {
+        this.handleLogoutError();
+      },
+    });
+  }
+
+  private handleLogoutSuccess(status: string, message: string) {
+    this.createAndDispatchNotification(status, message, 'success');
+    this.clearSessionAndCookies();
+    setTimeout(() => {
+      this.closePopup();
+      window.location.reload();
+    }, 2000);
+  }
+
+  private handleLogoutError() {
+    this.createAndDispatchNotification(
+      'Kết nối Server lỗi!',
+      'Không thể kết nối tới Server',
+      'error'
+    );
+    this.clearSessionAndCookies();
+    setTimeout(() => {
+      this.closePopup();
+      window.location.reload();
+    }, 2000);
+  }
+
+  private createAndDispatchNotification(
+    title: string,
+    message: string,
+    type: 'success' | 'error'
+  ) {
+    const notification: INotification = {
+      id: Date.now().toString(),
+      title,
+      message,
+      type,
+      timestamp: new Date(),
+    };
+    this.store.dispatch(addNotification({ notification }));
+    this.store.dispatch(logout());
+  }
+
+  private clearSessionAndCookies() {
+    sessionStorage.clear();
+    this.cookieService.deleteAll();
+  }
+
+  reLogin() {
+    this.isloading = true;
+    this.store.dispatch(logout());
+    sessionStorage.clear();
+    this.cookieService.deleteAll();
+    this.router.navigate(['/']);
+    this.store.dispatch(logout());
+    setTimeout(() => {
+      this.closePopup();
+      window.location.reload();
+    }, 2000);
+  }
+
+  // Xóa thông báo theo ID
+  removeNotification(id: string) {
+    this.store.dispatch(removeNotification({ id }));
+  }
+}
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]
+};
+import { Routes } from '@angular/router';
+import { HomeComponent } from './pages/home/home.component';
+
+export const routes: Routes = [
+  { path: '', component: HomeComponent }, // Load trước HomeComponent
+  {
+    path: 'play/:id',
+    loadComponent: () =>
+      import('./pages/play-page/play-page.component').then(
+        (m) => m.PlayPageComponent
+      ),
+  },
+  {
+    path: 'category/:categoryName',
+    loadComponent: () =>
+      import('./pages/recommend-list-film/recommend-list-film.component').then(
+        (m) => m.RecommendListFilmComponent
+      ),
+  },
+  {
+    path: 'film-details/:id',
+    loadComponent: () =>
+      import('./pages/film-details/film-details.component').then(
+        (m) => m.FilmDetailsComponent
+      ),
+  },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./pages/profile-account/profile-account.component').then(
+        (m) => m.ProfileAccountComponent
+      ),
+  },
+  { path: '**', redirectTo: '', pathMatch: 'full' },
+];
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app.routes';
+import { provideHttpClient } from '@angular/common/http';
+import { provideState, provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { provideAnimations } from '@angular/platform-browser/animations'; // ✅ Thêm animations
+import { authReducer } from './app/store/auth/auth.reducer';
+import { formReducer } from './app/store/open-form-state/form.reducer';
+import { notificationReducer } from './app/store/notification/notification.reducer';
+import { uiReducer } from './app/store/rerender/ui.reducer';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(),
+    provideStore(),
+    provideEffects(),
+    provideStore({ auth: authReducer }),
+    provideState({ name: 'form', reducer: formReducer }),
+    provideAnimations(), //Cung cấp Animations cho Angular
+    provideStore({ notification: notificationReducer }), // Thêm reducer thông báo
+    provideStore({ uiState: uiReducer }),
+    provideState({ name: 'notification', reducer: notificationReducer }),
+  ],
+}).catch((err) => console.error(err));
+{
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+      "init_code_fe": {
+        "projectType": "application",
+        "schematics": {
+          "@schematics/angular:component": {
+            "style": "scss"
+          }
+        },
+        "root": "",
+        "sourceRoot": "src",
+        "prefix": "app",
+        "architect": {
+          "build": {
+            "builder": "@angular-devkit/build-angular:application",
+            "options": {
+              "outputPath": "dist/init_code_fe",
+              "index": "src/index.html",
+              "browser": "src/main.ts",
+              "polyfills": ["zone.js"],
+              "tsConfig": "tsconfig.app.json",
+              "inlineStyleLanguage": "scss",
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public"
+                }
+              ],
+              "styles": ["src/styles.scss"],
+              "scripts": []
+            },
+            "configurations": {
+              "production": {
+                "budgets": [
+                  {
+                    "type": "initial",
+                    "maximumWarning": "500kB",
+                    "maximumError": "1MB"
+                  },
+                  {
+                    "type": "anyComponentStyle",
+                    "maximumWarning": "4kB",
+                    "maximumError": "8kB"
+                  }
+                ],
+                "outputHashing": "all"
+              },
+              "development": {
+                "optimization": false,
+                "extractLicenses": false,
+                "sourceMap": true
+              }
+            },
+            "defaultConfiguration": "production"
+          },
+          "serve": {
+            "builder": "@angular-devkit/build-angular:dev-server",
+            "configurations": {
+              "production": {
+                "buildTarget": "init_code_fe:build:production"
+              },
+              "development": {
+                "buildTarget": "init_code_fe:build:development"
+              }
+            },
+            "defaultConfiguration": "development"
+          },
+          "extract-i18n": {
+            "builder": "@angular-devkit/build-angular:extract-i18n"
+          },
+          "test": {
+            "builder": "@angular-devkit/build-angular:karma",
+            "options": {
+              "polyfills": ["zone.js", "zone.js/testing"],
+              "tsConfig": "tsconfig.spec.json",
+              "inlineStyleLanguage": "scss",
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public"
+                }
+              ],
+              "styles": ["src/styles.scss"],
+              "scripts": []
+            }
+          }
+        }
+      }
+    },
+    "cli": {
+      "analytics": "ae6049af-01b9-402a-84bd-69253b4c87e7"
+    }
+  }
+  {
+    "name": "init-code-fe",
+    "version": "0.0.0",
+    "scripts": {
+      "ng": "ng",
+      "start": "ng serve",
+      "build": "ng build",
+      "watch": "ng build --watch --configuration development",
+      "test": "ng test"
+    },
+    "private": true,
+    "dependencies": {
+      "@angular/animations": "^19.1.0",
+      "@angular/cdk": "^19.1.5",
+      "@angular/common": "^19.1.0",
+      "@angular/compiler": "^19.1.0",
+      "@angular/core": "^19.1.0",
+      "@angular/forms": "^19.1.0",
+      "@angular/platform-browser": "^19.1.0",
+      "@angular/platform-browser-dynamic": "^19.1.0",
+      "@angular/router": "^19.1.0",
+      "@ngrx/effects": "^19.0.1",
+      "@ngrx/store": "^19.0.1",
+      "date-fns": "^4.1.0",
+      "lucide-angular": "^0.475.0",
+      "ngx-cookie-service": "^19.1.2",
+      "rxjs": "~7.8.0",
+      "tslib": "^2.3.0",
+      "zone.js": "~0.15.0"
+    },
+    "devDependencies": {
+      "@angular-devkit/build-angular": "^19.1.6",
+      "@angular/cli": "^19.1.6",
+      "@angular/compiler-cli": "^19.1.0",
+      "@types/jasmine": "~5.1.0",
+      "jasmine-core": "~5.5.0",
+      "json-server": "^1.0.0-beta.3",
+      "karma": "~6.4.0",
+      "karma-chrome-launcher": "~3.2.0",
+      "karma-coverage": "~2.2.0",
+      "karma-jasmine": "~5.1.0",
+      "karma-jasmine-html-reporter": "~2.1.0",
+      "typescript": "~5.7.2"
+    }
+  }
+  /* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "./out-tsc/app",
+      "types": []
+    },
+    "files": [
+      "src/main.ts"
+    ],
+    "include": [
+      "src/**/*.d.ts"
+    ]
+  }
+  /* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+      "outDir": "./dist/out-tsc",
+      "strict": true,
+      "noImplicitOverride": true,
+      "noPropertyAccessFromIndexSignature": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "skipLibCheck": true,
+      "isolatedModules": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "moduleResolution": "bundler",
+      "importHelpers": true,
+      "target": "ES2022",
+      "module": "ES2022"
+    },
+    "angularCompilerOptions": {
+      "enableI18nLegacyMessageIdFormat": false,
+      "strictInjectionParameters": true,
+      "strictInputAccessModifiers": true,
+      "strictTemplates": true
+    }
+  }
+  /* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "./out-tsc/spec",
+      "types": [
+        "jasmine"
+      ]
+    },
+    "include": [
+      "src/**/*.spec.ts",
+      "src/**/*.d.ts"
+    ]
+  }
+  
